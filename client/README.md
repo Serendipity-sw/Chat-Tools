@@ -3,16 +3,6 @@ react脚手架
 
 ## 需要电脑安装的npm插件
     npm i rimraf -g
-    
-## 该脚手架可通过yeoman一键安装
-  
-    npm install -g yo
-    
-    npm install generator-react-cpt -g
-    
-    mkdir project && cd project
-    
-    yo react-cpt
 
 # 注意!
     当需要将ES6 转 ES5 时需要安装插件 yarn add -D babel-preset-es2015
