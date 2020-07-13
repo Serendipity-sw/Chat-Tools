@@ -65,13 +65,8 @@ type messageStruct struct {
 }
 
 func connectionStart(conn net.Conn) {
-	err := conn.SetReadDeadline(time.Now().Add(2 * time.Minute))
-	if err != nil {
-		glog.Error("connectionStart SetReadDeadline err! err: %s \n", err.Error())
-		return
-	}
 	defer func() {
-		err = conn.Close()
+		err := conn.Close()
 		if err != nil {
 			glog.Error("connectionStart close err! err: %s \n", err.Error())
 		}
