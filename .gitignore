@@ -32,3 +32,4 @@ backup
 backup/*
 */**/*.pcss.json
 *.lock
+*/*.exe
