@@ -96,30 +96,27 @@ func upper(ws *websocket.Conn) {
 	}()
 
 	for true {
-		if sendUser == "" {
-			time.Sleep(3 * time.Second)
-			continue
-		}
 		var result = make([]byte, 333333)
 		readLen, err := conn.Read(result)
 		if err != nil {
 			fmt.Println("警告: 数据读取失败! 对方已断线 err:", err.Error())
 			continue
 		}
-		var modal messageStruct
-		_ = json.Unmarshal(result[:readLen], &modal)
-		if modal.Message != "" {
-			contentDe, _ := gutil.AesDecrypt(modal.Message, aes)
-			modal.Message = contentDe
-		}
-		replyByte, _ := json.Marshal(modal)
-		go sendContent(ws, string(replyByte))
+		go sendContent(ws, result[:readLen])
 	}
 }
 
-func sendContent(ws *websocket.Conn, reply string) {
+func sendContent(ws *websocket.Conn, result []byte) {
+	var modal messageStruct
+	_ = json.Unmarshal(result, &modal)
+	if modal.Message != "" {
+		contentDe, _ := gutil.AesDecrypt(modal.Message, aes)
+		modal.Message = contentDe
+	}
+	replyByte, _ := json.Marshal(modal)
+
 	var err error
-	if err = websocket.Message.Send(ws, reply); err != nil {
+	if err = websocket.Message.Send(ws, string(replyByte)); err != nil {
 		fmt.Println(err)
 		return
 	}
