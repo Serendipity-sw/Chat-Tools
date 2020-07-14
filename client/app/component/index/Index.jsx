@@ -24,7 +24,7 @@ class Index extends React.Component {
 
   initSocket = () => {
     try {
-      this.socket = new WebSocket('ws://127.0.0.1:9999/');
+      this.socket = new WebSocket('ws://127.0.0:9999/');
       // 用户登录、重连
       this.socket.onopen = () => {
         let bytes = JSON.stringify({

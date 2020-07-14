@@ -128,8 +128,10 @@ func sendContent(ws *websocket.Conn, reply string) {
 func messageProcess(result []byte) {
 	var modal messageStruct
 	_ = json.Unmarshal(result, &modal)
-	message, _ := gutil.AesEncrypt(modal.Message, aes)
-	modal.Message = message
+	if modal.Message != "" {
+		message, _ := gutil.AesEncrypt(modal.Message, aes)
+		modal.Message = message
+	}
 	responseByte, _ := json.Marshal(modal)
 	_, err := conn.Write(responseByte)
 	if err != nil {
