@@ -22,7 +22,7 @@
     "dev": "webpack-dev-server --devtool eval --progress --colors --profile --config config/webpack/webpack.dev.conf.js",
     "p": "cross-env BABEL_ENV=production && webpack --progress --colors --config config/webpack/webpack.prod.conf.js",
     "build": "npm run devNew && npm run p",
-    "start": "concurrently \"npm run devNew && npm run dev\" \"wait-on http://localhost:8080 && electron .\"",
+    "start": "concurrently \"npm run devNew && npm run dev\" \"wait-on http://localhost:8088 && electron .\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -97,6 +97,7 @@
     "terser-brunch": "^3.0.0",
     "uglifyify": "^5.0.2",
     "url-loader": "^1.0.1",
+    "wait-on": "^5.1.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1",
     "webpack-dev-server": "^3.1.4",
