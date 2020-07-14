@@ -1,3 +1,89 @@
 .init {
   size: 100%;
+  display: flex;
+  background: rgba(255, 255, 255, 1);
+  --userListWidth: 144Px;
+
+  .userList {
+    width: var(--userListWidth);
+    height: 100%;
+    border-right: 1Px solid #e8e8e8;
+
+    .rows {
+      height: 40Px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+
+      .userName {
+        font-size: 16Px;
+      }
+
+      &.select {
+        background: rgba(226, 245, 254, 1);
+        cursor: default;
+      }
+
+      + .rows {
+        border-top: 1Px solid #e8e8e8;
+      }
+    }
+  }
+
+  .contentArea {
+    width: calc(100% - var(--userListWidth));
+    height: 100%;
+    --optionAreaHeight: 230Px;
+
+    .content {
+      width: 100%;
+      height: calc(100% - var(--optionAreaHeight));
+      overflow: none auto;
+
+      .rows {
+        display: flex;
+        margin-top: 12Px;
+
+        &.customerUser {
+          justify-content: flex-end;
+        }
+
+        .userMessage {
+          padding: 9Px 16Px;
+          word-break: break-all;
+          background: rgba(9, 170, 240, 1);
+          border-radius: 4Px;
+          font-size: 16Px;
+          font-family: PingFang SC;
+          font-weight: 400;
+          color: rgba(255, 255, 255, 1);
+        }
+
+        .customerService {
+          background: rgba(229, 235, 242, 1);
+          color: rgba(104, 118, 140, 1);
+          padding: 9Px 16Px;
+          word-break: break-all;
+          border-radius: 4Px;
+          font-size: 16Px;
+          font-family: PingFang SC;
+          font-weight: 400;
+        }
+      }
+    }
+
+    .optionArea {
+      height: var(--optionAreaHeight);
+      border-top: 1px solid #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+
+      .messageInput {
+        border: 0;
+      }
+    }
+  }
 }
