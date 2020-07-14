@@ -1,3 +1,6 @@
+/*
+* webpack 生产环境配置文件
+* */
 const path = require('path');
 const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');

@@ -1,3 +1,6 @@
+/*
+* webpack 开发环境配置文件
+* */
 const webpack = require('webpack');//引入webpack
 const opn = require('opn');//打开浏览器
 const merge = require('webpack-merge');//webpack配置文件合并
