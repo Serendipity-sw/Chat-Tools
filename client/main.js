@@ -6,11 +6,12 @@ function createWindow () {
     width: 1200,
     height: 700,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false
     }
   });
   // 加载index.html文件
-  win.loadURL('http://localhost:8088/');
+  win.loadFile('./dist/index.html');
 }
 
 app.whenReady().then(createWindow);
