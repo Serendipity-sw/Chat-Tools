@@ -113,8 +113,8 @@ func messageProcess(conn net.Conn, modal *messageStruct) {
 			sendByte, err := json.Marshal(messageStruct{
 				Type:       modal.Type,
 				Message:    modal.Message,
-				SendUser:   modal.SendUser,
-				ResultUser: modal.ResultUser,
+				SendUser:   modal.ResultUser,
+				ResultUser: modal.SendUser,
 				UserName:   "",
 				UserList:   make(map[string]string),
 			})
