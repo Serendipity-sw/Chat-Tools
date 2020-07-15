@@ -11,7 +11,7 @@ function createWindow () {
     }
   });
   // 加载index.html文件
-  win.loadFile('./index.html');
+  win.loadFile('./dist/index.html');
 }
 
 app.whenReady().then(createWindow);
