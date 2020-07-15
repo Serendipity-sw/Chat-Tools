@@ -18,7 +18,7 @@ import (
 
 var (
 	tcpPort    = ":9999" //监听端口
-	tcpService = "192.168.10.91:1200"
+	tcpService = "127.0.0.1:1200"
 	pidPath    = "./client.pid" //pid文件
 	logDir     = "./logs"
 	aes        = []byte("1231wdeasdanfsis")
@@ -88,8 +88,8 @@ func upper(ws *websocket.Conn) {
 			var reply []byte
 
 			if err = websocket.Message.Receive(ws, &reply); err != nil {
-				fmt.Println(err)
-				continue
+				fmt.Println("警告: 数据读取失败! 已断线 err:", err.Error())
+				break
 			}
 			go messageProcess(reply)
 		}
