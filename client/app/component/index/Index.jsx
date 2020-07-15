@@ -170,7 +170,7 @@ class Index extends React.Component {
           <div className={ style.content } ref={ el => this.contentObj = el }>
             {
               this.state.messageList.filter(item => item.resultUser === this.state.selectUser.userId || item.sendUser === this.state.selectUser.userId).map((item, index) => {
-                if (item.resultUser === this.state.selectUser.userId) {
+                if (item.sendUser === this.state.selectUser.userId) {
                   return <div key={ index } className={ style.rows }>
               <span
                 className={ style.userMessage }>{ item.message }</span>
