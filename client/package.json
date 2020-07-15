@@ -22,9 +22,11 @@
     "dev": "webpack-dev-server --devtool eval --progress --colors --profile --config config/webpack/webpack.dev.conf.js",
     "p": "cross-env BABEL_ENV=production && webpack --progress --colors --config config/webpack/webpack.prod.conf.js",
     "build": "npm run build-el && npm run devNew && npm run p",
+    "build:win": "npm run build-el:win && npm run devNew && npm run p",
     "start": "concurrently \"npm run devNew && npm run dev\" \"wait-on http://localhost:8088 && electron .\"",
     "el": "electron .",
     "build-el": "electron-builder",
+    "build-el:win": "electron-builder build --win",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
