@@ -12,6 +12,7 @@ function createWindow () {
   });
   // 加载index.html文件
   win.loadFile(process.resourcesPath+'/index.html');
+  win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
