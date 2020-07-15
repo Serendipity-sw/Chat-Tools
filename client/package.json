@@ -24,7 +24,13 @@
     "build": "npm run devNew && npm run p",
     "start": "concurrently \"npm run devNew && npm run dev\" \"wait-on http://localhost:8088 && electron .\"",
     "el": "electron .",
+    "build-el": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    }
   },
   "keywords": [],
   "license": "MIT",
@@ -73,6 +79,8 @@
     "cross-env": "^6.0.3",
     "css-loader": "^0.28.11",
     "electron": "^9.1.0",
+    "electron-builder": "^22.7.0",
+    "electron-packager": "^15.0.0",
     "envify": "^4.1.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file": "^0.2.2",
