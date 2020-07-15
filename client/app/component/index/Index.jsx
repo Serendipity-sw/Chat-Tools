@@ -2,7 +2,7 @@ import React from 'react';
 import '@/css/common/common.pcss';
 import './index.pcss';
 import style from './index.pcss.json';
-import { Button, Input } from 'antd';
+import { Button, Input, Modal } from 'antd';
 
 const { TextArea } = Input;
 
@@ -10,16 +10,18 @@ class Index extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      userList: ['user', 'test', 'ming'],
+      userList: [{ 'asjidf': 'asasdfasf' }, { 'sdnucvxz': 'ascnixnzc' }],
       messageList: [],
       selectUser: 'user',
-      message: ''
+      message: '',
+      visible: true,
+      loginUser: '',
+      loginUserId: ''
     };
     this.socket = null;
   }
 
   componentDidMount () {
-    this.initSocket();
   }
 
   initSocket = () => {
@@ -27,17 +29,15 @@ class Index extends React.Component {
       this.socket = new WebSocket('ws://127.0.0:9999/');
       // 用户登录、重连
       this.socket.onopen = () => {
-        let bytes = JSON.stringify({
+        this.socket.send(JSON.stringify({
           'type': 1,
           'message': '',
           'sendUser': '',
           'resultUser': '',
-          'userName': 'gloomy',
+          'userName': this.state.loginUser,
           'userList': []
-        });
-        console.log(123);
-        console.log(bytes);
-        this.socket.send(bytes);
+        }));
+        this.heartbeat();
       };
       // 接收消息
       this.socket.onmessage = res => {
@@ -50,19 +50,21 @@ class Index extends React.Component {
       this.socket.onclose = () => {
         this.socket = null;
       };
-      let bytes = JSON.stringify({
-        'type': 1,
+    } catch (e) {
+    }
+  };
+  heartbeat = () => {
+    setTimeout(() => {
+      this.socket.send(JSON.stringify({
+        'type': 5,
         'message': '',
         'sendUser': '',
         'resultUser': '',
-        'userName': 'gloomy',
+        'userName': this.state.loginUser,
         'userList': []
-      });
-      console.log(123);
-      console.log(bytes);
-      this.socket.send(bytes);
-    } catch (e) {
-    }
+      }));
+      this.heartbeat();
+    }, 2000);
   };
   switchUser = (selectUser) => {
     this.setState({ selectUser });
@@ -71,7 +73,31 @@ class Index extends React.Component {
     const { value } = e.target;
     this.setState({ message: value });
   };
+  loginUserChange = e => {
+    const { value } = e.target;
+    this.setState({ loginUser: value });
+  };
   sendMessage = () => {
+    if (this.state.message.length > 0) {
+      this.socket.send(JSON.stringify({
+        'type': 2,
+        'message': this.state.message,
+        'sendUser': '',
+        'resultUser': '',
+        'userName': this.state.loginUser,
+        'userList': []
+      }));
+    }
+  };
+  handleOk = () => {
+    if (this.state.loginUser.trim()) {
+      this.setState({
+        loginUser: this.state.loginUser.trim(),
+        visible: false
+      }, () => {
+        this.initSocket();
+      });
+    }
   };
 
   render () {
@@ -141,10 +167,18 @@ class Index extends React.Component {
           </div>
           <div className={ style.optionArea }>
             <TextArea placeholder="请输入" value={ this.state.message } className={ style.messageInput } rows={ 8 }
-                      onChange={ this.messageChange }/>
+                      onChange={ this.messageChange } onPressEnter={ this.sendMessage }/>
             <Button onClick={ this.sendMessage } type="primary">发送</Button>
           </div>
         </div>
+        <Modal
+          title="请输入登陆用户名"
+          visible={ this.state.visible }
+          maskClosable={ false }
+          onOk={ this.handleOk }
+        >
+          <Input value={ this.state.loginUser } placeholder="登陆用户名" maxLength={ 8 } onChange={ this.loginUserChange }/>
+        </Modal>
       </div>
     );
   }
