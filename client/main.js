@@ -11,7 +11,6 @@ function createWindow () {
   });
   // 加载index.html文件
   win.loadURL('http://localhost:8088/');
-  win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
