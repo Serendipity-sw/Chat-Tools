@@ -25,6 +25,14 @@ class Index extends React.Component {
     this.contentObj = null;
   }
 
+  componentDidMount () {
+    if (Notification && Notification.permission !== 'denied') {
+      Notification.requestPermission(function (status) {
+        new Notification('新消息', { body: '您有一条新短消息!' });
+      });
+    }
+  }
+
   initSocket = () => {
     try {
       this.socket = new WebSocket('ws://127.0.0.1:9999/');
@@ -57,6 +65,11 @@ class Index extends React.Component {
   messageProcess = data => {
     switch (data.type) {
       case 2:
+        if (Notification && Notification.permission !== 'denied') {
+          Notification.requestPermission(function (status) {
+            new Notification('新消息提醒', { body: '您有一条新短消息!' });
+          });
+        }
         this.setState({
           messageList: [
             ...this.state.messageList,

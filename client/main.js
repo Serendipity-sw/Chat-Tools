@@ -12,6 +12,7 @@ function createWindow () {
   });
   // 加载index.html文件
   win.loadFile(process.resourcesPath+'/index.html');
+  // win.loadURL('http://localhost:8088/index.html');
   win.webContents.openDevTools();
 }
 
