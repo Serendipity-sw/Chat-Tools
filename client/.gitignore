@@ -15,3 +15,5 @@ backup
 backup/*
 */**/*.pcss.json
 *.lock
+react-build
+react-build/*

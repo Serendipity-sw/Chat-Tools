@@ -138,7 +138,7 @@ func sendUserList() {
 	sendUserList := make(map[string]string)
 	userListLock.RLock()
 	for userId, item := range userList {
-		sendUserList[item.userName] = userId
+		sendUserList[userId] = item.userName
 	}
 	userListLock.RUnlock()
 	sendByte, err := json.Marshal(messageStruct{
