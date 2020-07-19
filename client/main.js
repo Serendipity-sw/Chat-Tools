@@ -17,3 +17,4 @@ function createWindow () {
 }
 
 app.whenReady().then(createWindow);
+// process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'; // 关闭ELECTRON警告
