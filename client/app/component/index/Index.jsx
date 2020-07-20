@@ -4,6 +4,7 @@ import './index.pcss';
 import style from './index.pcss.json';
 import { Button, Input, Modal,Upload, message } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -197,10 +198,11 @@ class Index extends React.Component {
     return domArray;
   };
 
+
    getBase64 = (img, callback) => {
-    const reader = new FileReader();
+    const reader = new FileReader(); // 对象允许Web应用程序异步读取存储在用户计算机上的文件（或原始数据缓冲区）的内容，使用 File 或 Blob 对象指定要读取的文件或数据。
     reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
+    reader.readAsDataURL(img); // 开始读取指定的Blob中的内容。一旦完成，result属性中将包含一个data: URL格式的Base64字符串以表示所读取文件的内容。
   };
 
   /*
@@ -211,12 +213,7 @@ class Index extends React.Component {
     if (!isJpgOrPng) {
       message.error('只能上传JPG/PNG！');
     }
-    console.log('file.size:', file.size);
-    const isLt2M = file.size / 1024  < 100;
-    if (!isLt2M) {
-      message.error('高糊才是表情包的精髓，麻烦大小不超过100k!');
-    }
-    return isJpgOrPng && isLt2M;
+    return isJpgOrPng;
   };
 
   handleChange = info => {
@@ -237,10 +234,9 @@ class Index extends React.Component {
 
   render () {
     const uploadButton = (
-      <div>
-        {this.state.loading ? <LoadingOutlined /> : <PlusOutlined />}
-        <div className="ant-upload-text">Upload</div>
-      </div>
+      <Button>
+        <UploadOutlined /> Click to Upload
+      </Button>
     );
     const { imageUrl } = this.state;
     return (
@@ -283,7 +279,11 @@ class Index extends React.Component {
               onChange={this.handleChange}
             >
               {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+{/*{<Button>
+                <UploadOutlined /> Click to Upload
+              </Button>}*/}
             </Upload>
+
             <Button onClick={ this.sendMessage } type="primary">发送</Button>
           </div>
         </div>
