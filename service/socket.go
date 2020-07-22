@@ -57,11 +57,16 @@ func socketStart() {
 
 type messageStruct struct {
 	Type       int64             `json:"type"`
-	Message    string            `json:"message"`
+	Message    messageContent            `json:"message"`
 	SendUser   string            `json:"sendUser"`
 	ResultUser string            `json:"resultUser"`
 	UserName   string            `json:"userName"`
 	UserList   map[string]string `json:"userList"`
+}
+
+type messageContent struct {
+  Type int64 `json:"type"`
+  Text string `json:"text"`
 }
 
 func connectionStart(conn net.Conn) {
@@ -143,7 +148,10 @@ func sendUserList() {
 	userListLock.RUnlock()
 	sendByte, err := json.Marshal(messageStruct{
 		Type:       3,
-		Message:    "",
+		Message:     messageContent{
+                				Type:0,
+                				Text:"",
+                				},
 		SendUser:   "",
 		ResultUser: "",
 		UserName:   "",
