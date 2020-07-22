@@ -72,11 +72,16 @@ func serverStart() {
 
 type messageStruct struct {
 	Type       int64             `json:"type"`
-	Message    string            `json:"message"`
+	Message    messageContent            `json:"message"`
 	SendUser   string            `json:"sendUser"`
 	ResultUser string            `json:"resultUser"`
 	UserName   string            `json:"userName"`
 	UserList   map[string]string `json:"userList"`
+}
+
+type messageContent struct {
+  Type int64 `json:"type"`
+  Text string `json:"text"`
 }
 
 func upper(ws *websocket.Conn) {
@@ -109,9 +114,9 @@ func upper(ws *websocket.Conn) {
 func sendContent(ws *websocket.Conn, result []byte) {
 	var modal messageStruct
 	_ = json.Unmarshal(result, &modal)
-	if modal.Message != "" {
-		contentDe, _ := gutil.AesDecrypt(modal.Message, aes)
-		modal.Message = contentDe
+	if modal.Message.Text != "" {
+		contentDe, _ := gutil.AesDecrypt(modal.Message.Text, aes)
+		modal.Message.Text = contentDe
 	}
 	replyByte, _ := json.Marshal(modal)
 
@@ -125,9 +130,9 @@ func sendContent(ws *websocket.Conn, result []byte) {
 func messageProcess(result []byte) {
 	var modal messageStruct
 	_ = json.Unmarshal(result, &modal)
-	if modal.Message != "" {
-		message, _ := gutil.AesEncrypt(modal.Message, aes)
-		modal.Message = message
+	if modal.Message.Text != "" {
+		message, _ := gutil.AesEncrypt(modal.Message.Text, aes)
+		modal.Message.Text = message
 	}
 	responseByte, _ := json.Marshal(modal)
 	_, err := conn.Write(responseByte)
@@ -160,7 +165,10 @@ func tcpSocket() {
 		for true {
 			var loginUser = messageStruct{
 				Type:       5,
-				Message:    "",
+				Message:    messageContent{
+				Type:0,
+				Text:"",
+				},
 				SendUser:   "",
 				ResultUser: "",
 				UserName:   "",
