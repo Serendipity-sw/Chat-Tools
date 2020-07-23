@@ -2,7 +2,8 @@ import React from 'react';
 import '@/css/common/common.pcss';
 import './index.pcss';
 import style from './index.pcss.json';
-import { Button, Input, Modal } from 'antd';
+import { Button, Input, Modal, Upload } from 'antd';
+import { PictureOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -40,7 +41,7 @@ class Index extends React.Component {
       this.socket.onopen = () => {
         this.socket.send(JSON.stringify({
           'type': 1,
-          'message': '',
+          'message': { type: 1, text: '' },
           'sendUser': '',
           'resultUser': '',
           'userName': this.state.loginUser,
@@ -101,7 +102,7 @@ class Index extends React.Component {
     setTimeout(() => {
       this.socket.send(JSON.stringify({
         'type': 5,
-        'message': '',
+        'message': { type: 1, text: '' },
         'sendUser': '',
         'resultUser': '',
         'userName': this.state.loginUser,
@@ -130,7 +131,7 @@ class Index extends React.Component {
     if (this.state.message.length > 0) {
       let sendData = {
         'type': 2,
-        'message': this.state.message,
+        'message': { type: 1, text: this.state.message },
         'sendUser': this.state.selectUser.userId,
         'resultUser': this.state.loginUserId,
         'userName': this.state.loginUser,
@@ -174,6 +175,35 @@ class Index extends React.Component {
     }
     return domArray;
   };
+  pictureBeforeUpload = async file => {
+    let src = await this.getBase64(file);
+    let sendData = {
+      'type': 2,
+      'message': { type: 2, text: src },
+      'sendUser': this.state.selectUser.userId,
+      'resultUser': this.state.loginUserId,
+      'userName': this.state.loginUser,
+      'userList': []
+    };
+    this.socket.send(JSON.stringify(sendData));
+    this.setState({
+      message: '',
+      messageList: [
+        ...this.state.messageList,
+        sendData
+      ]
+    }, () => {
+      this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
+    });
+  };
+  getBase64 = file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
 
   render () {
     return (
@@ -190,18 +220,29 @@ class Index extends React.Component {
                 if (item.resultUser === this.state.selectUser.userId) {
                   return <div key={ index } className={ style.rows }>
               <span
-                className={ style.userMessage }>{ item.message }</span>
+                className={ style.userMessage }>{ item.message.type === 1 ? item.message.text :
+                <img src={ item.message.text } alt=""/> }</span>
                   </div>;
                 } else {
                   return <div key={ index } className={ [style.rows, style.customerUser].join(' ') }>
-                    <span className={ style.customerService }>{ item.message }</span>
+                    <span className={ style.customerService }>{ item.message.type === 1 ? item.message.text :
+                      <img src={ item.message.text } alt=""/> }</span>
                   </div>;
                 }
               })
             }
           </div>
           <div className={ style.optionArea }>
-            <TextArea placeholder="请输入" value={ this.state.message } className={ style.messageInput } rows={ 8 }
+            <div className={ style.option }>
+              <Upload
+                accept={ '.jpg,.png,.gif' }
+                beforeUpload={ this.pictureBeforeUpload }
+                showUploadList={ false }
+              >
+                <PictureOutlined className={ style.uploadPicture }/>
+              </Upload>
+            </div>
+            <TextArea placeholder="请输入" value={ this.state.message } className={ style.messageInput } rows={ 7 }
                       onChange={ this.messageChange } onPressEnter={ this.sendMessage }/>
             <Button onClick={ this.sendMessage } type="primary">发送</Button>
           </div>
