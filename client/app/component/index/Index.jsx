@@ -176,7 +176,6 @@ class Index extends React.Component {
     return domArray;
   };
   pictureBeforeUpload = async file => {
-    let src = await this.getBase64(file);
     let sendData = {
       'type': 2,
       'message': { type: 2, text: src },
@@ -194,14 +193,6 @@ class Index extends React.Component {
       ]
     }, () => {
       this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
-    });
-  };
-  getBase64 = file => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
     });
   };
 

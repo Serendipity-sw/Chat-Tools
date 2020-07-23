@@ -4,7 +4,7 @@ import (
 	"github.com/guotie/deferinit"
 	"github.com/smtc/glog"
 	"github.com/swgloomy/gutil"
-	"net"
+	"golang.org/x/net/websocket"
 	"os"
 	"os/signal"
 	"runtime"
@@ -21,9 +21,9 @@ var (
 )
 
 type socketList struct {
-	conn     net.Conn //当前用户链接
-	userName string   //用户名称
-	userIp   string   //用户接入地址
+	conn     *websocket.Conn //当前用户链接
+	userName string          //用户名称
+	userIp   string          //用户接入地址
 }
 
 func main() {

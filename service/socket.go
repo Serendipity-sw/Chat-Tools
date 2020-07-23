@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/blackbeans/go-uuid"
 	"github.com/guotie/deferinit"
 	"github.com/smtc/glog"
-	"net"
+	"golang.org/x/net/websocket"
+	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -34,30 +37,48 @@ func userListProcess(ch chan struct{}, wg *sync.WaitGroup) {
 }
 
 func socketStart() {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", tcpPort)
-	if err != nil {
-		glog.Error("socketStart ResolveTCPAddr err! tcpPort: %s err: %s \n", tcpPort, err.Error())
-		return
-	}
+	http.Handle("/", websocket.Handler(upper))
 
-	listener, err := net.ListenTCP("tcp", tcpAddr)
-	if err != nil {
-		glog.Error("socketStart ListenTCP err! tcpPort: %s err: %s \n", tcpPort, err.Error())
-		return
+	if err := http.ListenAndServe(tcpPort, nil); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	for {
-		conn, err := listener.Accept()
+}
+
+func upper(ws *websocket.Conn) {
+	defer func() {
+		err := ws.Close()
 		if err != nil {
-			glog.Error("socketStart Accept err! tcpPort: %s err: %s \n", tcpPort, err.Error())
-			continue
+			glog.Error("connectionStart close err! err: %s \n", err.Error())
 		}
-		go connectionStart(conn)
+	}()
+	var err error
+	for {
+		var reply []byte
+
+		if err = websocket.Message.Receive(ws, &reply); err != nil {
+			fmt.Println("警告: 数据读取失败! 已断线 err:", err.Error())
+			go delUserList(ws.RemoteAddr().String())
+			break
+		}
+		if string(reply) == "" {
+			continue
+		} else {
+			var modal messageStruct
+			err = json.Unmarshal(reply, &modal)
+			if err != nil {
+				glog.Error("connectionStart run err! requestByte: %s err: %s \n", string(reply), err.Error())
+			} else {
+				go messageProcess(ws, &modal)
+			}
+			glog.Info("connectionStart result message %s \n", string(reply))
+		}
 	}
 }
 
 type messageStruct struct {
 	Type       int64             `json:"type"`
-	Message    messageContent            `json:"message"`
+	Message    messageContent    `json:"message"`
 	SendUser   string            `json:"sendUser"`
 	ResultUser string            `json:"resultUser"`
 	UserName   string            `json:"userName"`
@@ -65,41 +86,11 @@ type messageStruct struct {
 }
 
 type messageContent struct {
-  Type int64 `json:"type"`
-  Text string `json:"text"`
+	Type int64  `json:"type"`
+	Text string `json:"text"`
 }
 
-func connectionStart(conn net.Conn) {
-	defer func() {
-		err := conn.Close()
-		if err != nil {
-			glog.Error("connectionStart close err! err: %s \n", err.Error())
-		}
-	}()
-	var requestByte = make([]byte, 333333)
-	for {
-		readLen, err := conn.Read(requestByte)
-		if err != nil {
-			glog.Error("connectionStart Read err! err: %s \n", err.Error())
-			go delUserList(conn.RemoteAddr().String())
-			break
-		}
-		if string(requestByte[:readLen]) == "" {
-			continue
-		} else {
-			var modal messageStruct
-			err = json.Unmarshal(requestByte[:readLen], &modal)
-			if err != nil {
-				glog.Error("connectionStart run err! requestByte: %s err: %s \n", string(requestByte[:readLen]), err.Error())
-			} else {
-				go messageProcess(conn, &modal)
-			}
-			glog.Info("connectionStart result message %s \n", string(requestByte[:readLen]))
-		}
-	}
-}
-
-func messageProcess(conn net.Conn, modal *messageStruct) {
+func messageProcess(conn *websocket.Conn, modal *messageStruct) {
 	switch modal.Type {
 	case 1: //用户登录
 		userId := uuid.New()
@@ -127,7 +118,7 @@ func messageProcess(conn net.Conn, modal *messageStruct) {
 				glog.Error("messageProcess 2 Marshal run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
 				break
 			}
-			_, err = sendObj.conn.Write(sendByte)
+			err = websocket.Message.Send(sendObj.conn, string(sendByte))
 			if err != nil {
 				glog.Error("messageProcess 2 Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
 				break
@@ -147,11 +138,11 @@ func sendUserList() {
 	}
 	userListLock.RUnlock()
 	sendByte, err := json.Marshal(messageStruct{
-		Type:       3,
-		Message:     messageContent{
-                				Type:0,
-                				Text:"",
-                				},
+		Type: 3,
+		Message: messageContent{
+			Type: 0,
+			Text: "",
+		},
 		SendUser:   "",
 		ResultUser: "",
 		UserName:   "",
@@ -163,7 +154,7 @@ func sendUserList() {
 	}
 	userListLock.RLock()
 	for _, item := range userList {
-		_, err = item.conn.Write(sendByte)
+		err = websocket.Message.Send(item.conn, string(sendByte))
 		if err != nil {
 			glog.Error("sendUserList Write run err! err: %s \n", err.Error())
 		}
