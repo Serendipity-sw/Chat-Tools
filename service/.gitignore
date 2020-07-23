@@ -33,3 +33,4 @@ backup/*
 *.lock
 */*.exe
 Chat-Tools
+service
