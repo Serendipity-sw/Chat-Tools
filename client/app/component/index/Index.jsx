@@ -4,6 +4,7 @@ import './index.pcss';
 import style from './index.pcss.json';
 import { Button, Input, Modal, Upload } from 'antd';
 import { PictureOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const { TextArea } = Input;
 
@@ -24,6 +25,7 @@ class Index extends React.Component {
     };
     this.socket = null;
     this.contentObj = null;
+    this.serverHttp = 'http://127.0.0.1:1201';
   }
 
   componentDidMount () {
@@ -45,7 +47,7 @@ class Index extends React.Component {
           'sendUser': '',
           'resultUser': '',
           'userName': this.state.loginUser,
-          'userList': []
+          'userList': {}
         }));
         this.heartbeat();
       };
@@ -106,7 +108,7 @@ class Index extends React.Component {
         'sendUser': '',
         'resultUser': '',
         'userName': this.state.loginUser,
-        'userList': []
+        'userList': {}
       }));
       this.heartbeat();
     }, 2000);
@@ -135,7 +137,7 @@ class Index extends React.Component {
         'sendUser': this.state.selectUser.userId,
         'resultUser': this.state.loginUserId,
         'userName': this.state.loginUser,
-        'userList': []
+        'userList': {}
       };
       this.socket.send(JSON.stringify(sendData));
       this.setState({
@@ -175,24 +177,35 @@ class Index extends React.Component {
     }
     return domArray;
   };
-  pictureBeforeUpload = async file => {
-    let sendData = {
-      'type': 2,
-      'message': { type: 2, text: src },
-      'sendUser': this.state.selectUser.userId,
-      'resultUser': this.state.loginUserId,
-      'userName': this.state.loginUser,
-      'userList': []
-    };
-    this.socket.send(JSON.stringify(sendData));
-    this.setState({
-      message: '',
-      messageList: [
-        ...this.state.messageList,
-        sendData
-      ]
-    }, () => {
-      this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
+  pictureBeforeUpload = file => {
+    let form = new FormData();
+    form.append('file', file);
+    axios({
+      method: 'post',
+      url: this.serverHttp + '/fileUpload',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      data: form,
+    }).then(res => {
+      let sendData = {
+        'type': 2,
+        'message': { type: 2, text: res.data },
+        'sendUser': this.state.selectUser.userId,
+        'resultUser': this.state.loginUserId,
+        'userName': this.state.loginUser,
+        'userList': {}
+      };
+      this.socket.send(JSON.stringify(sendData));
+      this.setState({
+        message: '',
+        messageList: [
+          ...this.state.messageList,
+          sendData
+        ]
+      }, () => {
+        this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
+      });
     });
   };
 
@@ -212,12 +225,12 @@ class Index extends React.Component {
                   return <div key={ index } className={ style.rows }>
               <span
                 className={ style.userMessage }>{ item.message.type === 1 ? item.message.text :
-                <img src={ item.message.text } alt=""/> }</span>
+                <img src={ `${ this.serverHttp }/file/${ item.message.text }` } alt=""/> }</span>
                   </div>;
                 } else {
                   return <div key={ index } className={ [style.rows, style.customerUser].join(' ') }>
                     <span className={ style.customerService }>{ item.message.type === 1 ? item.message.text :
-                      <img src={ item.message.text } alt=""/> }</span>
+                      <img src={ `${ this.serverHttp }/file/${ item.message.text }` } alt=""/> }</span>
                   </div>;
                 }
               })
