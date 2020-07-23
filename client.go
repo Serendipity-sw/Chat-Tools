@@ -17,8 +17,8 @@ import (
 
 var (
 	tcpPort    = ":9999" //监听端口
-	tcpService = "ws://127.0.0.1:1200/"
-	tcpOrigin  = "http://127.0.0.1:1200/"
+	tcpService = "ws://192.168.11.202:1200/"
+	tcpOrigin  = "http://192.168.11.202:1200/"
 	pidPath    = "./client.pid" //pid文件
 	logDir     = "./logs"
 	aes        = []byte("1231wdeasdanfsis")

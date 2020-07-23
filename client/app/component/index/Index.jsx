@@ -25,7 +25,7 @@ class Index extends React.Component {
     };
     this.socket = null;
     this.contentObj = null;
-    this.serverHttp = 'http://127.0.0.1:1201';
+    this.serverHttp = 'http://192.168.11.202:1201';
   }
 
   componentDidMount () {
@@ -208,6 +208,9 @@ class Index extends React.Component {
       });
     });
   };
+  pictureLoad = () => {
+    this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
+  };
 
   render () {
     return (
@@ -225,12 +228,14 @@ class Index extends React.Component {
                   return <div key={ index } className={ style.rows }>
               <span
                 className={ style.userMessage }>{ item.message.type === 1 ? item.message.text :
-                <img src={ `${ this.serverHttp }/file/${ item.message.text }` } alt=""/> }</span>
+                <img src={ `${ this.serverHttp }/file/${ item.message.text }` } onLoad={ this.pictureLoad }
+                     alt=""/> }</span>
                   </div>;
                 } else {
                   return <div key={ index } className={ [style.rows, style.customerUser].join(' ') }>
                     <span className={ style.customerService }>{ item.message.type === 1 ? item.message.text :
-                      <img src={ `${ this.serverHttp }/file/${ item.message.text }` } alt=""/> }</span>
+                      <img src={ `${ this.serverHttp }/file/${ item.message.text }` } onLoad={ this.pictureLoad }
+                           alt=""/> }</span>
                   </div>;
                 }
               })

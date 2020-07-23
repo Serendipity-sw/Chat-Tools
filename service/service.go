@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/blackbeans/go-uuid"
 	"github.com/gin-gonic/gin"
 	"github.com/guotie/deferinit"
@@ -83,7 +84,7 @@ func router(r *gin.Engine) {
 	g.POST("/fileUpload", fileUpload) // 短信发送接口
 	g.GET("/file/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		c.File(name)
+		c.File(fmt.Sprintf("./file/%s", name))
 	})
 }
 
@@ -94,14 +95,15 @@ func fileUpload(c *gin.Context) {
 		c.Data(http.StatusOK, "application/javascript", []byte(""))
 		return
 	}
-	dst := uuid.New()
+	guidStr := uuid.New()
+	dst := fmt.Sprintf("./file/%s", guidStr)
 	// gin 简单做了封装,拷贝了文件流
 	if err := c.SaveUploadedFile(header, dst); err != nil {
 		glog.Error("fileUpload SaveUploadedFile err! err: %s \n", err.Error())
 		c.Data(http.StatusOK, "application/javascript", []byte(""))
 		return
 	}
-	c.Data(http.StatusOK, "application/javascript", []byte(dst))
+	c.Data(http.StatusOK, "application/javascript", []byte(guidStr))
 }
 
 func serverExit() {
