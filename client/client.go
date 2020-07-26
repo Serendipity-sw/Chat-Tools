@@ -19,16 +19,12 @@ var (
 	tcpPort    = ":9999" //监听端口
 	tcpService = "ws://192.168.11.202:1200/"
 	tcpOrigin  = "http://192.168.11.202:1200/"
-	pidPath    = "./client.pid" //pid文件
 	logDir     = "./logs"
 	aes        = []byte("1231wdeasdanfsis")
 	conn       *websocket.Conn
 )
 
 func main() {
-	if gutil.CheckPid(pidPath) {
-		return
-	}
 	gutil.LogInit(true, logDir)
 
 	serverStart()
@@ -36,13 +32,11 @@ func main() {
 	go socket()
 
 	c := make(chan os.Signal, 1)
-	gutil.WritePid(pidPath)
 	// 信号处理
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
 	// 等待信号
 	<-c
 	serverExit()
-	gutil.RmPidFile(pidPath)
 	os.Exit(0)
 }
 

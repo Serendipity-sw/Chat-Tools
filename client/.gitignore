@@ -17,3 +17,4 @@ backup/*
 *.lock
 react-build
 react-build/*
+*.exe
