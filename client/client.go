@@ -65,12 +65,12 @@ func serverStart() {
 }
 
 type messageStruct struct {
-	Type       int64             `json:"type"`
-	Message    messageContent    `json:"message"`
-	SendUser   string            `json:"sendUser"`
-	ResultUser string            `json:"resultUser"`
-	UserName   string            `json:"userName"`
-	UserList   map[string]string `json:"userList"`
+	Type       int64          `json:"type"`
+	Message    messageContent `json:"message"`
+	SendUser   string         `json:"sendUser"`
+	ResultUser string         `json:"resultUser"`
+	UserName   string         `json:"userName"`
+	UserList   interface{}    `json:"userList"`
 }
 
 type messageContent struct {
