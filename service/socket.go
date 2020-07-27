@@ -58,7 +58,6 @@ func upper(ws *websocket.Conn) {
 
 		if err = websocket.Message.Receive(ws, &reply); err != nil {
 			fmt.Println("警告: 数据读取失败! 已断线 err:", err.Error())
-			go delUserList(ws.RemoteAddr().String())
 			break
 		}
 		if string(reply) == "" {
@@ -166,21 +165,4 @@ func sendUserList() {
 		}
 	}
 	userListLock.RUnlock()
-}
-
-func delUserList(userIp string) {
-	user := ""
-	userListLock.RLock()
-	for userId, item := range userList {
-		if userIp == item.userIp {
-			user = userId
-			break
-		}
-	}
-	userListLock.RUnlock()
-	userListLock.Lock()
-	delete(userList, user)
-	userListLock.Unlock()
-
-	go sendUserList()
 }
