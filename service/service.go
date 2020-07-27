@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	userList     = map[string]socketList{} // 链接用户
+	userList     = map[string][]socketList{} // 链接用户
 	userListLock sync.RWMutex
 	tcpPort      = ":1200"         //监听端口
 	pidPath      = "./service.pid" //pid文件

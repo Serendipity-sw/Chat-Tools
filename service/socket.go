@@ -77,12 +77,12 @@ func upper(ws *websocket.Conn) {
 }
 
 type messageStruct struct {
-	Type       int64             `json:"type"`
-	Message    messageContent    `json:"message"`
-	SendUser   string            `json:"sendUser"`
-	ResultUser string            `json:"resultUser"`
-	UserName   string            `json:"userName"`
-	UserList   map[string]string `json:"userList"`
+	Type       int64               `json:"type"`
+	Message    messageContent      `json:"message"`
+	SendUser   string              `json:"sendUser"`
+	ResultUser string              `json:"resultUser"`
+	UserName   string              `json:"userName"`
+	UserList   map[string][]string `json:"userList"`
 }
 
 type messageContent struct {
@@ -95,16 +95,16 @@ func messageProcess(conn *websocket.Conn, modal *messageStruct) {
 	case 1: //用户登录
 		userId := uuid.New()
 		userListLock.Lock()
-		userList[userId] = socketList{
+		userList[userId] = append(userList[userId], socketList{
 			conn:     conn,
 			userName: modal.UserName,
 			userIp:   conn.RemoteAddr().String(),
-		}
+		})
 		userListLock.Unlock()
 		go sendUserList()
 		break
 	case 2: //用户消息
-		sendObj, bo := userList[modal.SendUser]
+		sendArray, bo := userList[modal.SendUser]
 		if bo {
 			sendByte, err := json.Marshal(messageStruct{
 				Type:       modal.Type,
@@ -112,16 +112,18 @@ func messageProcess(conn *websocket.Conn, modal *messageStruct) {
 				SendUser:   modal.ResultUser,
 				ResultUser: modal.SendUser,
 				UserName:   "",
-				UserList:   make(map[string]string),
+				UserList:   make(map[string][]string),
 			})
 			if err != nil {
 				glog.Error("messageProcess 2 Marshal run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
 				break
 			}
-			err = websocket.Message.Send(sendObj.conn, string(sendByte))
-			if err != nil {
-				glog.Error("messageProcess 2 Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
-				break
+			for _, item := range sendArray {
+				err = websocket.Message.Send(item.conn, string(sendByte))
+				if err != nil {
+					glog.Error("messageProcess 2 Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
+					continue
+				}
 			}
 		}
 		break
@@ -131,10 +133,12 @@ func messageProcess(conn *websocket.Conn, modal *messageStruct) {
 }
 
 func sendUserList() {
-	sendUserList := make(map[string]string)
+	sendUserList := make(map[string][]string)
 	userListLock.RLock()
-	for userId, item := range userList {
-		sendUserList[userId] = item.userName
+	for userId, itemArray := range userList {
+		for _, item := range itemArray {
+			sendUserList[userId] = append(sendUserList[userId], item.userName)
+		}
 	}
 	userListLock.RUnlock()
 	sendByte, err := json.Marshal(messageStruct{
@@ -153,10 +157,12 @@ func sendUserList() {
 		return
 	}
 	userListLock.RLock()
-	for _, item := range userList {
-		err = websocket.Message.Send(item.conn, string(sendByte))
-		if err != nil {
-			glog.Error("sendUserList Write run err! err: %s \n", err.Error())
+	for _, itemArray := range userList {
+		for _, item := range itemArray {
+			err = websocket.Message.Send(item.conn, string(sendByte))
+			if err != nil {
+				glog.Error("sendUserList Write run err! err: %s \n", err.Error())
+			}
 		}
 	}
 	userListLock.RUnlock()
