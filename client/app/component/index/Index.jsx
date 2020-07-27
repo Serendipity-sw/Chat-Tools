@@ -12,7 +12,7 @@ class Index extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      userList: { 'qewrqwr': 'qwerqwerq', 'cxzczv': 'cxvz' },
+      userList: { 'qewrqwr': ['qwerqwerq'], 'cxzczv': ['cxvz', 'asd', 'qaweqweq', 'qweqwessasd'] },
       messageList: [],
       selectUser: {
         name: '',
@@ -163,7 +163,9 @@ class Index extends React.Component {
   };
   userListDomProcess = userList => {
     let domArray = [];
+    let index = 0;
     for (const userListKey in userList) {
+      index++;
       domArray.push(
         <div
           key={ userListKey }
@@ -171,7 +173,7 @@ class Index extends React.Component {
           onClick={ () => {userListKey !== this.state.selectUser.userId && this.switchUser(userListKey);} }>
           <span
             key={ userListKey }
-            className={ style.userName }>{ userList[userListKey] }</span>
+            className={ style.userName }>{ userList[userListKey].length === 1 ? userList[userListKey][0] : `讨论组${ index }` }</span>
         </div>
       );
     }
