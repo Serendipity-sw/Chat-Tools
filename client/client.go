@@ -17,8 +17,8 @@ import (
 
 var (
 	tcpPort    = ":9999" //监听端口
-	tcpService = "ws://192.168.11.202:1200/"
-	tcpOrigin  = "http://192.168.11.202:1200/"
+	tcpService = "ws://45.76.205.126:1200/"
+	tcpOrigin  = "http://45.76.205.126:1200/"
 	logDir     = "./logs"
 	aes        = []byte("1231wdeasdanfsis")
 	conn       *websocket.Conn
