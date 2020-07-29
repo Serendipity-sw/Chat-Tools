@@ -25,7 +25,7 @@ class Index extends React.Component {
     };
     this.socket = null;
     this.contentObj = null;
-    this.serverHttp = 'http://192.168.11.202:1201';
+    this.serverHttp = 'http://45.76.205.126:1201';
   }
 
   componentDidMount () {
