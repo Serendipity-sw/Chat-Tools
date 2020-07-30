@@ -25,7 +25,7 @@ class Index extends React.Component {
     };
     this.socket = null;
     this.contentObj = null;
-    this.serverHttp = 'http://192.168.11.202:1201';
+    this.serverHttp = 'http://45.76.205.126:1201';
   }
 
   componentDidMount () {
@@ -89,7 +89,7 @@ class Index extends React.Component {
       case 3:
         let loginUserId = '';
         for (const userListKey in data.userList) {
-          if (this.state.loginUser === data.userList[userListKey]) {
+          if (this.state.loginUser === data.userList[userListKey][0]) {
             loginUserId = userListKey;
           }
         }
