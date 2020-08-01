@@ -88,14 +88,17 @@ class Index extends React.Component {
         break;
       case 3:
         let loginUserId = '';
+        let userList = {};
         for (const userListKey in data.userList) {
-          if (this.state.loginUser === data.userList[userListKey][0]) {
+          if (data.userList[userListKey].length === 0 && this.state.loginUser === data.userList[userListKey][0]) {
             loginUserId = userListKey;
+          } else {
+            userList[userListKey] = data.userList[userListKey];
           }
         }
         this.setState({
           loginUserId,
-          userList: data.userList
+          userList
         });
         break;
     }
