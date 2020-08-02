@@ -114,13 +114,13 @@ func messageProcess(conn *websocket.Conn, modal *messageStruct) {
 				UserList:   make(map[string][]string),
 			})
 			if err != nil {
-				glog.Error("messageProcess 2 Marshal run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
+				glog.Error("messageProcess Marshal run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
 				break
 			}
 			for _, item := range sendArray {
 				err = websocket.Message.Send(item.conn, string(sendByte))
 				if err != nil {
-					glog.Error("messageProcess 2 Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
+					glog.Error("messageProcess Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
 					continue
 				}
 			}
