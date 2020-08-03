@@ -7,7 +7,6 @@ import (
 	"github.com/smtc/glog"
 	"github.com/swgloomy/gutil"
 	"golang.org/x/net/websocket"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,17 +17,14 @@ import (
 
 var (
 	tcpPort    = ":9999" //监听端口
-	tcpService = "192.168.31.69:1200"
-	pidPath    = "./client.pid" //pid文件
+	tcpService = "ws://45.76.205.126:1200/"
+	tcpOrigin  = "http://45.76.205.126:1200/"
 	logDir     = "./logs"
 	aes        = []byte("1231wdeasdanfsis")
-	conn       net.Conn
+	conn       *websocket.Conn
 )
 
 func main() {
-	if gutil.CheckPid(pidPath) {
-		return
-	}
 	gutil.LogInit(true, logDir)
 
 	serverStart()
@@ -36,13 +32,11 @@ func main() {
 	go socket()
 
 	c := make(chan os.Signal, 1)
-	gutil.WritePid(pidPath)
 	// 信号处理
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
 	// 等待信号
 	<-c
 	serverExit()
-	gutil.RmPidFile(pidPath)
 	os.Exit(0)
 }
 
@@ -71,12 +65,17 @@ func serverStart() {
 }
 
 type messageStruct struct {
-	Type       int64             `json:"type"`
-	Message    string            `json:"message"`
-	SendUser   string            `json:"sendUser"`
-	ResultUser string            `json:"resultUser"`
-	UserName   string            `json:"userName"`
-	UserList   map[string]string `json:"userList"`
+	Type       int64          `json:"type"`
+	Message    messageContent `json:"message"`
+	SendUser   string         `json:"sendUser"`
+	ResultUser string         `json:"resultUser"`
+	UserName   string         `json:"userName"`
+	UserList   interface{}    `json:"userList"`
+}
+
+type messageContent struct {
+	Type int64  `json:"type"`
+	Text string `json:"text"`
 }
 
 func upper(ws *websocket.Conn) {
@@ -96,22 +95,21 @@ func upper(ws *websocket.Conn) {
 	}()
 
 	for true {
-		var result = make([]byte, 333333)
-		readLen, err := conn.Read(result)
-		if err != nil {
-			fmt.Println("警告: 数据读取失败! 对方已断线 err:", err.Error())
-			continue
+		var reply []byte
+		if err := websocket.Message.Receive(conn, &reply); err != nil {
+			fmt.Println("警告: 数据读取失败! 已断线 err:", err.Error())
+			break
 		}
-		go sendContent(ws, result[:readLen])
+		go sendContent(ws, reply)
 	}
 }
 
 func sendContent(ws *websocket.Conn, result []byte) {
 	var modal messageStruct
 	_ = json.Unmarshal(result, &modal)
-	if modal.Message != "" {
-		contentDe, _ := gutil.AesDecrypt(modal.Message, aes)
-		modal.Message = contentDe
+	if modal.Message.Text != "" && modal.Message.Type == 1 {
+		contentDe, _ := gutil.AesDecrypt(modal.Message.Text, aes)
+		modal.Message.Text = contentDe
 	}
 	replyByte, _ := json.Marshal(modal)
 
@@ -124,13 +122,17 @@ func sendContent(ws *websocket.Conn, result []byte) {
 
 func messageProcess(result []byte) {
 	var modal messageStruct
-	_ = json.Unmarshal(result, &modal)
-	if modal.Message != "" {
-		message, _ := gutil.AesEncrypt(modal.Message, aes)
-		modal.Message = message
+	err := json.Unmarshal(result, &modal)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	if modal.Message.Text != "" && modal.Message.Type == 1 {
+		message, _ := gutil.AesEncrypt(modal.Message.Text, aes)
+		modal.Message.Text = message
 	}
 	responseByte, _ := json.Marshal(modal)
-	_, err := conn.Write(responseByte)
+	err = websocket.Message.Send(conn, string(responseByte))
 	if err != nil {
 		fmt.Println("发送失败!")
 	}
@@ -146,28 +148,27 @@ func socket() {
 }
 
 func tcpSocket() {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", tcpService)
+	websocketConn, err := websocket.Dial(tcpService, "", tcpOrigin)
 	if err != nil {
 		fmt.Println("连接失败!")
 		return
 	}
-	conn, err = net.DialTCP("tcp", nil, tcpAddr)
-	if err != nil {
-		fmt.Println("连接失败!")
-		return
-	}
+	conn = websocketConn
 	go func() {
 		for true {
 			var loginUser = messageStruct{
-				Type:       5,
-				Message:    "",
+				Type: 5,
+				Message: messageContent{
+					Type: 0,
+					Text: "",
+				},
 				SendUser:   "",
 				ResultUser: "",
 				UserName:   "",
 				UserList:   make(map[string]string),
 			}
 			responseByte, _ := json.Marshal(loginUser)
-			_, err := conn.Write(responseByte)
+			err := websocket.Message.Send(conn, string(responseByte))
 			if err != nil {
 				fmt.Println("心跳包发送失败!")
 				return

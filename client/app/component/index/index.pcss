@@ -18,6 +18,12 @@
 
       .userName {
         font-size: 16Px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       &.select {
@@ -58,6 +64,11 @@
           font-family: PingFang SC;
           font-weight: 400;
           color: rgba(255, 255, 255, 1);
+
+          img {
+            width: 100%;
+            display: block;
+          }
         }
 
         .customerService {
@@ -69,6 +80,11 @@
           font-size: 16Px;
           font-family: PingFang SC;
           font-weight: 400;
+
+          img {
+            width: 100%;
+            display: block;
+          }
         }
       }
     }
@@ -80,6 +96,18 @@
       flex-direction: column;
       align-items: flex-end;
       justify-content: space-between;
+
+      .option {
+        height: 33Px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding-left: 12Px;
+
+        .uploadPicture {
+          cursor: pointer;
+        }
+      }
 
       .messageInput {
         border: 0;

@@ -2,9 +2,9 @@ import React from 'react';
 import '@/css/common/common.pcss';
 import './index.pcss';
 import style from './index.pcss.json';
-import { Button, Input, Modal,Upload, message } from 'antd';
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { UploadOutlined } from '@ant-design/icons';
+import { Button, Input, Modal, Upload } from 'antd';
+import { PictureOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const { TextArea } = Input;
 
@@ -12,7 +12,7 @@ class Index extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      userList: { 'qewrqwr': 'qwerqwerq', 'cxzczv': 'cxvz' },
+      userList: { 'qewrqwr': ['qwerqwerq'], 'cxzczv': ['cxvz', 'asd', 'qaweqweq', 'qweqwessasd'] },
       messageList: [],
       selectUser: {
         name: '',
@@ -21,11 +21,11 @@ class Index extends React.Component {
       message: '',
       visible: true,
       loginUser: '',
-      loginUserId: '',
-      loading: false // 图片loading
+      loginUserId: ''
     };
     this.socket = null;
     this.contentObj = null;
+    this.serverHttp = 'http://45.76.205.126:1201';
   }
 
   componentDidMount () {
@@ -39,16 +39,16 @@ class Index extends React.Component {
   initSocket = () => {
     try {
       this.socket = new WebSocket('ws://127.0.0.1:9999/');
-      // 用户登录、重连   一旦服务器响应了websocket连接请求，open事件触发并建立一个连接
+      // 用户登录、重连
       this.socket.onopen = () => {
         this.socket.send(JSON.stringify({
           'type': 1,
-          'message': '',
+          'message': { type: 1, text: '' },
           'sendUser': '',
           'resultUser': '',
           'userName': this.state.loginUser,
-          'userList': []
-        })); // 发送消息
+          'userList': {}
+        }));
         this.heartbeat();
       };
       // 接收消息
@@ -89,14 +89,17 @@ class Index extends React.Component {
         break;
       case 3:
         let loginUserId = '';
+        let userList = {};
         for (const userListKey in data.userList) {
-          if (this.state.loginUser === data.userList[userListKey]) {
+          if (data.userList[userListKey].length === 1 && this.state.loginUser === data.userList[userListKey][0]) {
             loginUserId = userListKey;
+          } else {
+            userList[userListKey] = data.userList[userListKey];
           }
         }
         this.setState({
           loginUserId,
-          userList: data.userList
+          userList
         });
         break;
     }
@@ -105,11 +108,11 @@ class Index extends React.Component {
     setTimeout(() => {
       this.socket.send(JSON.stringify({
         'type': 5,
-        'message': '',
+        'message': { type: 1, text: '' },
         'sendUser': '',
         'resultUser': '',
         'userName': this.state.loginUser,
-        'userList': []
+        'userList': {}
       }));
       this.heartbeat();
     }, 2000);
@@ -129,7 +132,6 @@ class Index extends React.Component {
   * 输入框的change事件
   * */
   messageChange = (e) => {
-    console.log('e.target:', e.target);
     const { value } = e.target;
     this.setState({ message: value });
   };
@@ -147,11 +149,11 @@ class Index extends React.Component {
     if (this.state.message.length > 0) {
       let sendData = {
         'type': 2,
-        'message': this.state.message,
+        'message': { type: 1, text: this.state.message },
         'sendUser': this.state.selectUser.userId,
         'resultUser': this.state.loginUserId,
         'userName': this.state.loginUser,
-        'userList': []
+        'userList': {}
       };
       this.socket.send(JSON.stringify(sendData));
       this.setState({
@@ -180,7 +182,9 @@ class Index extends React.Component {
   };
   userListDomProcess = userList => {
     let domArray = [];
+    let index = 0;
     for (const userListKey in userList) {
+      index++;
       domArray.push(
         <div
           key={ userListKey }
@@ -191,54 +195,48 @@ class Index extends React.Component {
           onClick={ () => {userListKey !== this.state.selectUser.userId && this.switchUser(userListKey);} }>
           <span
             key={ userListKey }
-            className={ style.userName }>{ userList[userListKey] }</span>
+            className={ style.userName }>{ userList[userListKey].length === 1 ? userList[userListKey][0] : `讨论组${ index }` }</span>
         </div>
       );
     }
     return domArray;
   };
-
-
-   getBase64 = (img, callback) => {
-    const reader = new FileReader(); // 对象允许Web应用程序异步读取存储在用户计算机上的文件（或原始数据缓冲区）的内容，使用 File 或 Blob 对象指定要读取的文件或数据。
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img); // 开始读取指定的Blob中的内容。一旦完成，result属性中将包含一个data: URL格式的Base64字符串以表示所读取文件的内容。
+  pictureBeforeUpload = file => {
+    let form = new FormData();
+    form.append('file', file);
+    axios({
+      method: 'post',
+      url: this.serverHttp + '/fileUpload',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      data: form,
+    }).then(res => {
+      let sendData = {
+        'type': 2,
+        'message': { type: 2, text: res.data },
+        'sendUser': this.state.selectUser.userId,
+        'resultUser': this.state.loginUserId,
+        'userName': this.state.loginUser,
+        'userList': {}
+      };
+      this.socket.send(JSON.stringify(sendData));
+      this.setState({
+        message: '',
+        messageList: [
+          ...this.state.messageList,
+          sendData
+        ]
+      }, () => {
+        this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
+      });
+    });
   };
-
-  /*
-  * 图片格式大小限制
-  * */
-   beforeUpload = (file) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('只能上传JPG/PNG！');
-    }
-    return isJpgOrPng;
-  };
-
-  handleChange = info => {
-    if (info.file.status === 'uploading') {
-      this.setState({ loading: true });
-      return;
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      this.getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        }),
-      );
-    }
+  pictureLoad = () => {
+    this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
   };
 
   render () {
-    const uploadButton = (
-      <Button>
-        <UploadOutlined /> Click to Upload
-      </Button>
-    );
-    const { imageUrl } = this.state;
     return (
       <div className={ style.init }>
         <div className={ style.userList }>
@@ -254,11 +252,15 @@ class Index extends React.Component {
                 if (item.resultUser === this.state.selectUser.userId) {
                   return <div key={ index } className={ style.rows }>
               <span
-                className={ style.userMessage }>{ item.message }</span>
+                className={ style.userMessage }>{ item.message.type === 1 ? item.message.text :
+                <img src={ `${ this.serverHttp }/file/${ item.message.text }` } onLoad={ this.pictureLoad }
+                     alt=""/> }</span>
                   </div>;
                 } else {
                   return <div key={ index } className={ [style.rows, style.customerUser].join(' ') }>
-                    <span className={ style.customerService }>{ item.message }</span>
+                    <span className={ style.customerService }>{ item.message.type === 1 ? item.message.text :
+                      <img src={ `${ this.serverHttp }/file/${ item.message.text }` } onLoad={ this.pictureLoad }
+                           alt=""/> }</span>
                   </div>;
                 }
               })
@@ -266,24 +268,17 @@ class Index extends React.Component {
           </div>
           {/* 底部输入框 */ }
           <div className={ style.optionArea }>
-            <TextArea placeholder="请输入" value={ this.state.message } className={ style.messageInput } rows={ 8 }
+            <div className={ style.option }>
+              <Upload
+                accept={ '.jpg,.png,.gif' }
+                beforeUpload={ this.pictureBeforeUpload }
+                showUploadList={ false }
+              >
+                <PictureOutlined className={ style.uploadPicture }/>
+              </Upload>
+            </div>
+            <TextArea placeholder="请输入" value={ this.state.message } className={ style.messageInput } rows={ 7 }
                       onChange={ this.messageChange } onPressEnter={ this.sendMessage }/>
-            {/*<Input type="file" value={ this.state.message } onChange={ this.messageChange }/>*/}
-            <Upload
-              name="avatar"
-              listType="picture-card"
-              className="avatar-uploader"
-              showUploadList={false}
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-              beforeUpload={this.beforeUpload}
-              onChange={this.handleChange}
-            >
-              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-{/*{<Button>
-                <UploadOutlined /> Click to Upload
-              </Button>}*/}
-            </Upload>
-
             <Button onClick={ this.sendMessage } type="primary">发送</Button>
           </div>
         </div>

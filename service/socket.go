@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/blackbeans/go-uuid"
 	"github.com/guotie/deferinit"
 	"github.com/smtc/glog"
-	"net"
+	"golang.org/x/net/websocket"
+	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -34,81 +37,73 @@ func userListProcess(ch chan struct{}, wg *sync.WaitGroup) {
 }
 
 func socketStart() {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", tcpPort)
-	if err != nil {
-		glog.Error("socketStart ResolveTCPAddr err! tcpPort: %s err: %s \n", tcpPort, err.Error())
-		return
-	}
+	http.Handle("/", websocket.Handler(upper))
 
-	listener, err := net.ListenTCP("tcp", tcpAddr)
-	if err != nil {
-		glog.Error("socketStart ListenTCP err! tcpPort: %s err: %s \n", tcpPort, err.Error())
-		return
-	}
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			glog.Error("socketStart Accept err! tcpPort: %s err: %s \n", tcpPort, err.Error())
-			continue
-		}
-		go connectionStart(conn)
+	if err := http.ListenAndServe(tcpPort, nil); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 
-type messageStruct struct {
-	Type       int64             `json:"type"`
-	Message    string            `json:"message"`
-	SendUser   string            `json:"sendUser"`
-	ResultUser string            `json:"resultUser"`
-	UserName   string            `json:"userName"`
-	UserList   map[string]string `json:"userList"`
-}
-
-func connectionStart(conn net.Conn) {
+func upper(ws *websocket.Conn) {
 	defer func() {
-		err := conn.Close()
+		err := ws.Close()
 		if err != nil {
 			glog.Error("connectionStart close err! err: %s \n", err.Error())
 		}
 	}()
-	var requestByte = make([]byte, 333333)
+	var err error
 	for {
-		readLen, err := conn.Read(requestByte)
-		if err != nil {
-			glog.Error("connectionStart Read err! err: %s \n", err.Error())
-			go delUserList(conn.RemoteAddr().String())
+		var reply []byte
+
+		if err = websocket.Message.Receive(ws, &reply); err != nil {
+			fmt.Println("警告: 数据读取失败! 已断线 err:", err.Error())
 			break
 		}
-		if string(requestByte[:readLen]) == "" {
+		if string(reply) == "" {
 			continue
 		} else {
 			var modal messageStruct
-			err = json.Unmarshal(requestByte[:readLen], &modal)
+			err = json.Unmarshal(reply, &modal)
 			if err != nil {
-				glog.Error("connectionStart run err! requestByte: %s err: %s \n", string(requestByte[:readLen]), err.Error())
+				glog.Error("connectionStart run err! requestByte: %s err: %s \n", string(reply), err.Error())
 			} else {
-				go messageProcess(conn, &modal)
+				go messageProcess(ws, &modal)
 			}
-			glog.Info("connectionStart result message %s \n", string(requestByte[:readLen]))
+			glog.Info("connectionStart result message %s \n", string(reply))
 		}
 	}
 }
 
-func messageProcess(conn net.Conn, modal *messageStruct) {
+type messageStruct struct {
+	Type       int64               `json:"type"`
+	Message    messageContent      `json:"message"`
+	SendUser   string              `json:"sendUser"`
+	ResultUser string              `json:"resultUser"`
+	UserName   string              `json:"userName"`
+	UserList   map[string][]string `json:"userList"`
+}
+
+type messageContent struct {
+	Type int64  `json:"type"`
+	Text string `json:"text"`
+}
+
+func messageProcess(conn *websocket.Conn, modal *messageStruct) {
 	switch modal.Type {
 	case 1: //用户登录
 		userId := uuid.New()
 		userListLock.Lock()
-		userList[userId] = socketList{
+		userList[userId] = append(userList[userId], socketList{
 			conn:     conn,
 			userName: modal.UserName,
 			userIp:   conn.RemoteAddr().String(),
-		}
+		})
 		userListLock.Unlock()
 		go sendUserList()
 		break
 	case 2: //用户消息
-		sendObj, bo := userList[modal.SendUser]
+		sendArray, bo := userList[modal.SendUser]
 		if bo {
 			sendByte, err := json.Marshal(messageStruct{
 				Type:       modal.Type,
@@ -116,16 +111,18 @@ func messageProcess(conn net.Conn, modal *messageStruct) {
 				SendUser:   modal.ResultUser,
 				ResultUser: modal.SendUser,
 				UserName:   "",
-				UserList:   make(map[string]string),
+				UserList:   make(map[string][]string),
 			})
 			if err != nil {
-				glog.Error("messageProcess 2 Marshal run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
+				glog.Error("messageProcess Marshal run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
 				break
 			}
-			_, err = sendObj.conn.Write(sendByte)
-			if err != nil {
-				glog.Error("messageProcess 2 Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
-				break
+			for _, item := range sendArray {
+				err = websocket.Message.Send(item.conn, string(sendByte))
+				if err != nil {
+					glog.Error("messageProcess Write run err! Message: %s SendUser: %s err: %s \n", modal.Message, modal.ResultUser, err.Error())
+					continue
+				}
 			}
 		}
 		break
@@ -135,15 +132,20 @@ func messageProcess(conn net.Conn, modal *messageStruct) {
 }
 
 func sendUserList() {
-	sendUserList := make(map[string]string)
+	sendUserList := make(map[string][]string)
 	userListLock.RLock()
-	for userId, item := range userList {
-		sendUserList[userId] = item.userName
+	for userId, itemArray := range userList {
+		for _, item := range itemArray {
+			sendUserList[userId] = append(sendUserList[userId], item.userName)
+		}
 	}
 	userListLock.RUnlock()
 	sendByte, err := json.Marshal(messageStruct{
-		Type:       3,
-		Message:    "",
+		Type: 3,
+		Message: messageContent{
+			Type: 0,
+			Text: "",
+		},
 		SendUser:   "",
 		ResultUser: "",
 		UserName:   "",
@@ -154,28 +156,13 @@ func sendUserList() {
 		return
 	}
 	userListLock.RLock()
-	for _, item := range userList {
-		_, err = item.conn.Write(sendByte)
-		if err != nil {
-			glog.Error("sendUserList Write run err! err: %s \n", err.Error())
+	for _, itemArray := range userList {
+		for _, item := range itemArray {
+			err = websocket.Message.Send(item.conn, string(sendByte))
+			if err != nil {
+				glog.Error("sendUserList Write run err! err: %s \n", err.Error())
+			}
 		}
 	}
 	userListLock.RUnlock()
-}
-
-func delUserList(userIp string) {
-	user := ""
-	userListLock.RLock()
-	for userId, item := range userList {
-		if userIp == item.userIp {
-			user = userId
-			break
-		}
-	}
-	userListLock.RUnlock()
-	userListLock.Lock()
-	delete(userList, user)
-	userListLock.Unlock()
-
-	go sendUserList()
 }

@@ -18,3 +18,27 @@ react + electron
 
 
 之后进入client目录,安装依赖. 安装完成后. 执行 yarn run build 打包. 会自行根据操作系统打出对应的客户端包
+
+### 讨论组数据结构
+````
+{
+  'type': 6, //创建讨论组
+  'message': { type: 1, text: '' },
+  'sendUser': '',
+  'resultUser': '',
+  'userName': '',
+  'userList': {'asfsdd':['用户uud','用户uuid']}
+}
+
+{
+  'type': 7,//编辑讨论组
+  'message': { type: 1, text: '' },
+  'sendUser': '',
+  'resultUser': '',
+  'userName': '',
+  'userList': {'讨论组uuid':['用户uuid','用户uuid']}
+}
+````
+
+
+
