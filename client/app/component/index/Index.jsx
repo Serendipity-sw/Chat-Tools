@@ -21,7 +21,8 @@ class Index extends React.Component {
       message: '',
       visible: true,
       loginUser: '',
-      loginUserId: ''
+      loginUserId: '',
+      groupModal: false // 创建讨论组
     };
     this.socket = null;
     this.contentObj = null;
@@ -235,6 +236,33 @@ class Index extends React.Component {
   pictureLoad = () => {
     this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
   };
+  showGroup = () => {
+    this.setState({
+      groupModal: true,
+    });
+  };
+  createGroup = () => {
+
+  };
+  addUser = userList => {
+/*    let domArray = [];
+    let index = 0;
+    for (const userListKey in userList) {
+      index++;
+      domArray.push(
+        <div
+          key={ userListKey }
+          className={ [style.rows, userListKey === this.state.selectUser.userId && style.select].join(' ') }
+          onClick={ () => {userListKey !== this.state.selectUser.userId && this.switchUser(userListKey);} }>
+          <span
+            key={ userListKey }
+            className={ style.userName }>{ userList[userListKey].length === 1 ? userList[userListKey][0] : `讨论组${ index }` }</span>
+        </div>
+      );
+    }
+    return domArray;*/
+  };
+
 
   render () {
     return (
@@ -243,6 +271,7 @@ class Index extends React.Component {
           {
             this.userListDomProcess(this.state.userList)
           }
+          <Button type="primary" className={ style.create } onClick={ this.showGroup }>创建讨论组</Button>
         </div>
         <div className={ style.contentArea }>
           {/* 消息列表 */ }
@@ -289,6 +318,19 @@ class Index extends React.Component {
           onOk={ this.handleOk }
         >
           <Input value={ this.state.loginUser } placeholder="登陆用户名" maxLength={ 8 } onChange={ this.loginUserChange }/>
+        </Modal>
+        <Modal
+          title="请添加讨论组成员"
+          visible={ this.state.groupModal }
+          maskClosable={ false }
+          onOk={ this.createGroup }
+        >
+          {
+            console.log('this.state.userList:', this.state.userList)
+          }
+          {
+            this.addUser(this.state.userList)
+          }
         </Modal>
       </div>
     );
