@@ -2,11 +2,12 @@ import React from 'react';
 import '@/css/common/common.pcss';
 import './index.pcss';
 import style from './index.pcss.json';
-import { Button, Input, Modal, Upload } from 'antd';
+import { Button, Input, Modal, Upload, Checkbox } from 'antd';
 import { PictureOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { TextArea } = Input;
+const CheckboxGroup = Checkbox.Group;
 
 class Index extends React.Component {
   constructor (props) {
@@ -22,7 +23,9 @@ class Index extends React.Component {
       visible: true,
       loginUser: '',
       loginUserId: '',
-      groupModal: false // 创建讨论组
+      groupModal: false, // 创建讨论组
+      checkboxOptions: [], // user
+      checkedList: [] // 默认选中
     };
     this.socket = null;
     this.contentObj = null;
@@ -36,6 +39,8 @@ class Index extends React.Component {
       });
     }
   }
+
+  componentDidUpdate (prevProps, prevState, snapshot) {}
 
   initSocket = () => {
     try {
@@ -168,9 +173,6 @@ class Index extends React.Component {
       });
     }
   };
-  /*
-  * 弹窗OK
-  * */
   handleOk = () => {
     if (this.state.loginUser.trim()) {
       this.setState({
@@ -196,6 +198,7 @@ class Index extends React.Component {
           onClick={ () => {userListKey !== this.state.selectUser.userId && this.switchUser(userListKey);} }>
           <span
             key={ userListKey }
+            onClick={ () => {userList[userListKey].length > 1 && this.showGroup(userList[userListKey]);} }
             className={ style.userName }>{ userList[userListKey].length === 1 ? userList[userListKey][0] : `讨论组${ index }` }</span>
         </div>
       );
@@ -236,33 +239,46 @@ class Index extends React.Component {
   pictureLoad = () => {
     this.contentObj.scrollTo(0, this.contentObj.scrollHeight);
   };
-  showGroup = () => {
+  showGroup = checkUserList => {
+    let checkboxOption = [];
+    let checkedList = [];
+    for (const userListKey in this.state.userList) {
+      if (this.state.userList[userListKey].length === 1) { // 单个用户，非讨论组
+        checkUserList.filter(item => item === this.state.userList[userListKey][0]).length > 0 && checkedList.push(userListKey);
+        let option = {};
+        option.label = this.state.userList[userListKey][0];
+        option.value = userListKey;
+        checkboxOption.push(option);
+      } else { // 讨论组
+        console.log('讨论组:', userListKey);
+      }
+    }
     this.setState({
       groupModal: true,
+      checkedList,
+      checkboxOptions: checkboxOption
     });
+    // console.log('checkboxOption:', checkboxOption);
   };
   createGroup = () => {
-
+    let sendData = {
+      'type': 6, //创建讨论组
+      'message': { type: 1, text: '' },
+      'sendUser': '',
+      'resultUser': '',
+      'userName': '',
+      'userList': { 'asfsdd': this.state.checkedList }
+    };
+    this.socket.send(JSON.stringify(sendData));
+    this.setState({
+      groupModal: false
+    })
   };
-  addUser = userList => {
-/*    let domArray = [];
-    let index = 0;
-    for (const userListKey in userList) {
-      index++;
-      domArray.push(
-        <div
-          key={ userListKey }
-          className={ [style.rows, userListKey === this.state.selectUser.userId && style.select].join(' ') }
-          onClick={ () => {userListKey !== this.state.selectUser.userId && this.switchUser(userListKey);} }>
-          <span
-            key={ userListKey }
-            className={ style.userName }>{ userList[userListKey].length === 1 ? userList[userListKey][0] : `讨论组${ index }` }</span>
-        </div>
-      );
-    }
-    return domArray;*/
+  onChange = checkedList => {
+    this.setState({
+      checkedList
+    });
   };
-
 
   render () {
     return (
@@ -271,7 +287,8 @@ class Index extends React.Component {
           {
             this.userListDomProcess(this.state.userList)
           }
-          <Button type="primary" className={ style.create } onClick={ this.showGroup }>创建讨论组</Button>
+          <Button type="primary" className={ style.create }
+                  onClick={ () => {this.showGroup([]);} }>创建讨论组</Button>
         </div>
         <div className={ style.contentArea }>
           {/* 消息列表 */ }
@@ -325,12 +342,11 @@ class Index extends React.Component {
           maskClosable={ false }
           onOk={ this.createGroup }
         >
-          {
-            console.log('this.state.userList:', this.state.userList)
-          }
-          {
-            this.addUser(this.state.userList)
-          }
+          <CheckboxGroup
+            options={ this.state.checkboxOptions }
+            value={ this.state.checkedList }
+            onChange={ this.onChange }
+          />
         </Modal>
       </div>
     );
