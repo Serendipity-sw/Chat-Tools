@@ -132,7 +132,6 @@ func messageProcess(result []byte) {
 		modal.Message.Text = message
 	}
 	responseByte, _ := json.Marshal(modal)
-	fmt.Println(string(result))
 	err = websocket.Message.Send(conn, string(responseByte))
 	if err != nil {
 		fmt.Println("发送失败!")
