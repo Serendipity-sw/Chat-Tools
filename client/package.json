@@ -106,7 +106,7 @@
     "postcss-pxtorem": "^4.0.1",
     "postcss-short": "^5.0.0",
     "precss": "^3.1.2",
-    "react-dev-utils": "^5.0.1",
+    "react-dev-utils": "^11.0.4",
     "redux-devtools": "^3.4.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-replace": "^2.2.0",
