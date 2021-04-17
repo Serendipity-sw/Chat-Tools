@@ -7,8 +7,6 @@ class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
-            loadTip: '数据加载中...',
             imgPreview: '',
             isImgPreview: false
         }
