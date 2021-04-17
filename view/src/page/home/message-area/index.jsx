@@ -60,91 +60,9 @@ class MessageArea extends React.Component {
             <div className={style.userMessageArea}>
               <label>2021年4月17日21:06:47</label>
               <span className={style.message}>
-              <img src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
+              <img onClick={event => (this.imgPreview(event))}
+                   src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
                    alt=""/>
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
-          <div className={style.otherSideArea}>
-            <img className={style.otherSideIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.otherMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
-          <div className={style.userArea}>
-            <img className={style.userMessageIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.userMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
-          <div className={style.userArea}>
-            <img className={style.userMessageIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.userMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
-          <div className={style.otherSideArea}>
-            <img className={style.otherSideIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.otherMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
-          <div className={style.otherSideArea}>
-            <img className={style.otherSideIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.otherMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
               asdfasfasdfasdfsdf
             </span>
             </div>
