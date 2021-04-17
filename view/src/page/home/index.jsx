@@ -2,6 +2,8 @@ import React from 'react';
 import style from './index.pcss'
 import {PhotoSlider} from "react-photo-view";
 import UserList from "../../../components/user-list";
+import MessageArea from "./message-area";
+import UserMessage from "./user-message";
 
 class Home extends React.Component {
     constructor(props) {
@@ -28,7 +30,8 @@ class Home extends React.Component {
             <>
                 <UserList/>
                 <div className={style.contentArea} ref={this.content}>
-
+                    <MessageArea/>
+                    <UserMessage/>
                 </div>
                 <PhotoSlider
                     toolbarRender={({rotate, onRotate}) => {

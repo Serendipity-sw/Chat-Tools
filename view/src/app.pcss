@@ -1,11 +1,41 @@
 :root {
-    --userListWidth: 126Px;
+  --userListWidth: 126Px;
 }
 
 :global(#root) {
-    size: 100%;
+  size: 100%;
 }
 
+@font-face {
+  font-family: 'iconfont';  /* project id 2494274 */
+  src: url('//at.alicdn.com/t/font_2494274_ogxrcjiyphh.eot');
+  src: url('//at.alicdn.com/t/font_2494274_ogxrcjiyphh.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_2494274_ogxrcjiyphh.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_2494274_ogxrcjiyphh.woff') format('woff'),
+  url('//at.alicdn.com/t/font_2494274_ogxrcjiyphh.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_2494274_ogxrcjiyphh.svg#iconfont') format('svg');
+}
+
+
+
 ul, li {
-    list-style: none;
+  list-style: none;
+}
+
+::-webkit-scrollbar {
+  size: 0;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  transition: all .2s;
+
+  &:hover {
+    background-color: transparent;
+  }
 }
