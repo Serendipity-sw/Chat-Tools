@@ -1,0 +1,90 @@
+{
+  "name": "wallpaper-collector",
+  "version": "1.1.1",
+  "description": "scaffolding",
+  "main": "client/main.js",
+  "scripts": {
+    "start:react": "webpack serve --progress --mode development -c view/config/webpack/webpack.conf.js",
+    "start:dev": "concurrently \"yarn run start:react\" \"wait-on http://localhost:8080 && cross-env NODE_ENV=development electron .\"",
+    "start": "concurrently \"yarn run start:react\" \"wait-on http://localhost:8080 && cross-env NODE_ENV=development electron .\"",
+    "build:electron-win": "cross-env ELECTRON_BUILDER_BINARIES_MIRROR=https://npm.taobao.org/mirrors/electron-builder-binaries/ electron-builder build --win",
+    "build:electron": "cross-env ELECTRON_BUILDER_BINARIES_MIRROR=https://npm.taobao.org/mirrors/electron-builder-binaries/ electron-builder build",
+    "build:react": "webpack --progress --mode production -c view/config/webpack/webpack.conf.js && gulp buildTime",
+    "build": "yarn run build:react && yarn run build:electron",
+    "build:win": "yarn run build:react && yarn run build:electron-win"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swgloomy/Chat-Tools.git"
+  },
+  "build": {
+    "extraResources": {
+      "from": "./react-build",
+      "to": "./"
+    },
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    }
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/swgloomy/Chat-Tools/issues"
+  },
+  "homepage": "https://github.com/swgloomy/Chat-Tools#readme",
+  "devDependencies": {
+    "@babel/core": "^7.13.8",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/preset-env": "^7.13.9",
+    "@babel/preset-react": "^7.12.13",
+    "autoprefixer": "^10.2.5",
+    "babel-loader": "^8.2.2",
+    "concurrently": "^6.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^5.1.1",
+    "css-minimizer-webpack-plugin": "^1.2.0",
+    "cssnano-preset-advanced": "^4.0.7",
+    "electron": "^12.0.2",
+    "electron-builder": "^22.10.5",
+    "file-loader": "^6.2.0",
+    "gulp": "^4.0.2",
+    "gulp-zip": "^5.1.0",
+    "html-webpack-plugin": "^5.3.0",
+    "mini-css-extract-plugin": "^1.3.9",
+    "moment-kirk": "^1.0.1",
+    "open": "^8.0.2",
+    "postcss": "^8.2.7",
+    "postcss-assets": "^5.0.0",
+    "postcss-autoreset": "^3.0.3",
+    "postcss-font-magician": "^3.0.0",
+    "postcss-initial": "^4.0.0",
+    "postcss-loader": "^5.1.0",
+    "postcss-preset-env": "^6.7.0",
+    "postcss-pxtorem": "^6.0.0",
+    "postcss-short": "^5.0.0",
+    "postcss-use": "^3.0.0",
+    "postcss-utilities": "^0.8.4",
+    "precss": "^4.0.0",
+    "style-loader": "^2.0.0",
+    "wait-on": "^5.3.0",
+    "webpack": "^5.24.4",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-encoding-plugin": "^0.3.1",
+    "webpack-parallel-uglify-plugin": "^2.0.0"
+  },
+  "dependencies": {
+    "antd": "^4.15.0",
+    "axios": "^0.21.1",
+    "qs": "^6.10.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-photo-view": "^0.5.2",
+    "react-redux": "^7.2.2",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
+    "wallpaper": "^4.4.2"
+  }
+}

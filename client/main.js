@@ -1,38 +1,43 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const {app, BrowserWindow, Menu, ipcMain} = require('electron');
+const wallpaper = require('wallpaper')
+const exec = require('child_process').execFile
+const path = require('path');
+
 let mainWindow;
 const createWindow = () => {
-  // 创建浏览器窗口
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 700,
-    webPreferences: {
-      nodeIntegration: true,
-      webSecurity: false
-    }
-  });
-  // 加载index.html文件
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.loadURL('http://localhost:8090/index.html');
-  } else {
-    mainWindow.loadFile(process.resourcesPath + '/index.html');
-  }
-};
-// 菜单
-const menuList = [
-  {
-    label: 'dev',
-    submenu: [
-      {
-        label: '调试',
-        click: () => {
-          mainWindow.webContents.openDevTools();
+    mainWindow = new BrowserWindow({
+        width: 1200,
+        height: 700,
+        webPreferences: {
+            webSecurity: false,
+            nodeIntegration: false,
+            contextIsolation: true,
+            enableRemoteModule: false,
+            preload: path.join(__dirname, 'js/preload.js')
         }
-      }
-    ]
-  }
-];
-const appMenu = Menu.buildFromTemplate(menuList);
-Menu.setApplicationMenu(appMenu);
+    });
+    if (process.env.NODE_ENV === 'development') {
+        mainWindow.webContents.openDevTools()
+        mainWindow.loadURL('http://localhost:8080/index.html');
+        if (process.platform === 'win32') {
+            // windows 系统
+            exec(path.join(__dirname, '../service/service.exe'))
+        } else {
+            exec(path.join(__dirname, '../service/service'))
+        }
+    } else {
+        mainWindow.loadFile(process.resourcesPath + '/index.html');
+        if (process.platform === 'win32') {
+            // windows 系统
+            exec(process.resourcesPath + '/service.exe')
+        } else {
+            exec(process.resourcesPath + '/service')
+        }
+    }
+
+};
+Menu.setApplicationMenu(null);
 app.whenReady().then(createWindow);
-
-
+app.on('window-all-closed', () => {
+    app.exit(0);
+})

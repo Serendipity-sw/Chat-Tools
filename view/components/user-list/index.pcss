@@ -1,0 +1,25 @@
+.init {
+    width: var(--userListWidth);
+    height: 100%;
+    border-right: 2px solid #b9b0b0;
+    float: left;
+    overflow: hidden auto;
+
+    ul {
+        margin: 0;
+        size: 100%;
+        padding: 0;
+
+        li {
+            height: 43px;
+            cursor: pointer;
+            @util center;
+            font-size: 17px;
+
+            &.select {
+                background: #b9b0b0;
+                color: white;
+            }
+        }
+    }
+}

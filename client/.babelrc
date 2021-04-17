@@ -1,9 +1,0 @@
-{
-  "presets":["react","env"],
-  "env":{
-    "development": {
-      "presets":[]
-    }
-  },
-  "plugins": ["transform-class-properties","transform-object-rest-spread","transform-decorators-legacy",["import", { "libraryName": "antd", "libraryDirectory": "es", "style": "css" }]]
-}
