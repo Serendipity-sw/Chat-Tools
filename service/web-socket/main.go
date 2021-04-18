@@ -15,7 +15,7 @@ var (
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
-	socketArray     []util.Manager
+	socketArray     map[string]util.Manager
 	socketArrayLock sync.RWMutex
 )
 
@@ -74,7 +74,7 @@ func registeredUserMessage(conn *websocket.Conn, messageType int, messageObj *ut
 	modal.Avatar = messageObj.Img
 	modal.Conn = conn
 	socketArrayLock.Lock()
-	socketArray = append(socketArray, modal)
+	socketArray[modal.Id] = modal
 	socketArrayLock.Unlock()
 	go sendMessage(conn, messageType, util.ResultMessage{Type: 4, Msg: "注册成功"})
 	go sendUserList(conn, messageType)
