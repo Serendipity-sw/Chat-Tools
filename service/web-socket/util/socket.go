@@ -9,6 +9,6 @@ type Manager struct {
 	Avatar     string
 	Name       string
 	Group      []*Manager
-	GroupCount uint
+	GroupCount int
 	Conn       *websocket.Conn
 }
