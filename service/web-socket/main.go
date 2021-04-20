@@ -72,6 +72,7 @@ func registeredUserMessage(conn *websocket.Conn, messageType int, messageObj *ut
 	modal.Id = uuidObj.String()
 	modal.Name = messageObj.Content
 	modal.Avatar = messageObj.Img
+	modal.GroupCount = 1
 	modal.Conn = conn
 	socketArrayLock.Lock()
 	socketArray[modal.Id] = modal
