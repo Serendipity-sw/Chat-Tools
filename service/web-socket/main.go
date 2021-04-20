@@ -22,7 +22,7 @@ var (
 func WsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsUpgrade.Upgrade(w, r, nil)
 	if err != nil {
-		glog.Error("WsHandler Failed to set websocket upgrade: %+v \n", err)
+		glog.Error("WsHandler Failed to set websocket upgrade! err: %+v \n", err)
 		return
 	}
 	go readMessage(conn)
