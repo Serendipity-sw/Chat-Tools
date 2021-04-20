@@ -2,7 +2,7 @@ package web_socket
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/swgloomy/gutil/glog"
 	"net/http"
@@ -18,7 +18,7 @@ var (
 			return true
 		},
 	}
-	socketArray     map[string]util.Manager
+	socketArray     = make(map[string]util.Manager)
 	socketArrayLock sync.RWMutex
 )
 
@@ -35,11 +35,29 @@ func readMessage(conn *websocket.Conn) {
 	for {
 		t, msg, err := conn.ReadMessage()
 		if err != nil || t == websocket.CloseMessage {
+			go delSocket(fmt.Sprintf("%p", conn))
 			glog.Error("WsHandler read message err! err: %+v \n", err)
 			break
 		}
 		go messageProcess(msg, conn)
 	}
+}
+
+func delSocket(pointer string) {
+	socketArrayLock.Lock()
+	for _, manager := range socketArray {
+		if manager.GroupCount != 1 {
+			for index, item := range manager.Group {
+				if item.Id == pointer {
+					manager.Group = append(manager.Group[:index], manager.Group[:index+1]...)
+					break
+				}
+			}
+		}
+	}
+	delete(socketArray, pointer)
+	socketArrayLock.Unlock()
+	go sendUserList(nil)
 }
 
 func messageProcess(strBuffer []byte, conn *websocket.Conn) {
@@ -71,15 +89,9 @@ func messageProcess(strBuffer []byte, conn *websocket.Conn) {
 }
 
 func registeredGroupMessage(conn *websocket.Conn, messageObj *util.Message) {
-	uuidObj, err := uuid.NewUUID()
-	if err != nil {
-		glog.Error("messageProcess NewUUID run err! err: %+v \n", err)
-		go sendMessage(conn, util.ResultMessage{Type: 5, Msg: "服务端生成UUID失败!"})
-		return
-	}
 	var modal util.Manager
-	modal.Id = uuidObj.String()
-	modal.Name = messageObj.Content
+	modal.Id = fmt.Sprintf("%p", conn)
+	modal.Name = messageObj.Name
 	modal.Avatar = messageObj.Img
 	modal.GroupCount = len(messageObj.UserList)
 	socketArrayLock.Lock()
@@ -93,15 +105,9 @@ func registeredGroupMessage(conn *websocket.Conn, messageObj *util.Message) {
 }
 
 func registeredUserMessage(conn *websocket.Conn, messageObj *util.Message) {
-	uuidObj, err := uuid.NewUUID()
-	if err != nil {
-		glog.Error("messageProcess NewUUID run err! err: %+v \n", err)
-		go sendMessage(conn, util.ResultMessage{Type: 5, Msg: "服务端生成UUID失败!"})
-		return
-	}
 	var modal util.Manager
-	modal.Id = uuidObj.String()
-	modal.Name = messageObj.Content
+	modal.Id = fmt.Sprintf("%p", conn)
+	modal.Name = messageObj.Name
 	modal.Avatar = messageObj.Img
 	modal.GroupCount = 1
 	modal.Conn = conn
@@ -129,7 +135,8 @@ func sendUserList(userList *[]string) {
 			}
 		}
 		var result = util.ResultMessage{
-			Type: 6,
+			Type:     6,
+			UserList: make(map[string]util.UserManager),
 		}
 		for _, manager := range socketArray {
 			if item.Id == manager.Id && manager.GroupCount == 1 {

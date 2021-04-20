@@ -15,10 +15,22 @@ class Router extends React.Component {
   }
 
   componentDidMount() {
-    const socket = new WebSocket("ws://t-register.aegis-info.com/ws")
+    this.socketInit()
+  }
+
+  socketInit = () => {
+    const socket = new WebSocket("ws://localhost:8082/ws")
     this.props.addSocket(socket)
     socket.onopen = () => {
-      this.props.socket.send("nihao")
+      this.props.socket.send(JSON.stringify({
+        type: 1,
+        content: '',
+        img: '',
+        name: 'gloomy',
+        send_id: 0,
+        result_id: 0,
+        user_list: []
+      }))
     }
     socket.onmessage = res => {
       console.log(res)
