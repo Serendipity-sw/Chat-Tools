@@ -4,6 +4,7 @@ import style from './index.pcss'
 import Home from "../page/home";
 import {connect} from "react-redux";
 import {addSocket} from "../reducers/socket";
+import Login from "../../components/login";
 
 @connect(
   state => ({socket: state.socket}),
@@ -48,6 +49,7 @@ class Router extends React.Component {
       <HashRouter>
         <div className={style.init}>
           <Route exact path="/" component={Home}/>
+          <Login/>
         </div>
       </HashRouter>
     );
