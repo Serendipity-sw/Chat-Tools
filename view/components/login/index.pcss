@@ -1,3 +1,29 @@
-.init {
+.rows {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+  + .rows {
+    margin-top: 14px;
+  }
+
+  .title {
+    width: 50px;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 14px;
+
+    span {
+      color: red;
+    }
+  }
+
+  .inputArea {
+    margin-left: 12px;
+    width: 174px;
+  }
+
+  &.top {
+    align-items: flex-start;
+  }
 }

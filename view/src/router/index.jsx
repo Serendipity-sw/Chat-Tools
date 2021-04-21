@@ -13,6 +13,9 @@ import Login from "../../components/login";
 class Router extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      isLoginVisible: true
+    }
   }
 
   componentDidMount() {
@@ -44,12 +47,14 @@ class Router extends React.Component {
     }
   }
 
+  closeLogin = () => this.setState({isLoginVisible: false})
+
   render() {
     return (
       <HashRouter>
         <div className={style.init}>
           <Route exact path="/" component={Home}/>
-          <Login/>
+          <Login isLoginVisible={this.state.isLoginVisible} closeLogin={this.closeLogin}/>
         </div>
       </HashRouter>
     );

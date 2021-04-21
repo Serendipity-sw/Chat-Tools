@@ -2,18 +2,22 @@ import React from 'react'
 import {Input, message, Modal, Upload} from "antd";
 import {LoadingOutlined, PlusOutlined} from '@ant-design/icons';
 import style from './index.pcss'
+import {connect} from "react-redux";
+import {addUser} from "../../src/reducers/user";
 
+@connect(
+  state => ({user: state.user}),
+  {addUser}
+)
 class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userName: '',
-      loading: false,
-      imageUrl: ''
+      loading: false
     }
   }
 
-  userNameChange = e => this.setState({userName: e.target.value})
+  userNameChange = e => this.props.addUser({userName: e.target.value})
 
   beforeUpload = file => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -30,16 +34,35 @@ class Login extends React.Component {
     }
     if (info.file.status === 'done') {
       if (info.file.response.code === 200) {
-        this.setState({imageUrl: `http://localhost:8080/img/${info.file.response.msg}`, loading: false})
+        this.setState({loading: false})
+        this.props.addUser({imageUrl: `http://localhost:8080/img/${info.file.response.msg}`})
       } else {
-        this.setState({imageUrl: '', loading: false})
+        this.setState({loading: false})
+        this.props.addUser({imageUrl: ''})
         message.error(info.file.response.msg)
       }
     }
-  };
+  }
+
+  userLogin = () => {
+    const {userName, imageUrl} = this.props.user
+    if (!userName.trim()) {
+      message.error("请输入登陆用户名!")
+      return
+    }
+    this.props.addUser({userName: userName.trim()})
+    if (!imageUrl) {
+      message.error("请上传头像")
+      return;
+    }
+    this.props.closeLogin()
+  }
+
+  loginWarning = () => message.error("请登录!")
 
   render() {
-    const {userName, loading, imageUrl} = this.state
+    const {loading} = this.state
+    const {userName, imageUrl} = this.props.user
     const uploadButton = (
       <div>
         {loading ? <LoadingOutlined/> : <PlusOutlined/>}
@@ -48,14 +71,14 @@ class Login extends React.Component {
     );
     return (
       <>
-        <Modal title="登陆" visible={true}>
+        <Modal title="登陆" visible={this.props.isLoginVisible} onOk={this.userLogin} onCancel={this.loginWarning}>
           <div className={style.rows}>
             <span className={style.title}><span>*</span>用户名</span>
             <div className={style.inputArea}>
               <Input maxLength={12} value={userName} onChange={this.userNameChange} placeholder="请输入用户名"/>
             </div>
           </div>
-          <div className={style.rows}>
+          <div className={[style.rows, style.top].join(' ')}>
             <span className={style.title}><span>*</span>头像</span>
             <div className={style.inputArea}>
               <Upload
