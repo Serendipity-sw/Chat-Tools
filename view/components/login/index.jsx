@@ -30,7 +30,7 @@ class Login extends React.Component {
     }
     if (info.file.status === 'done') {
       if (info.file.response.code === 200) {
-        this.setState({imageUrl: `https://t-register.aegis-info.com/img/${info.file.response.msg}`, loading: false})
+        this.setState({imageUrl: `http://localhost:8080/img/${info.file.response.msg}`, loading: false})
       } else {
         this.setState({imageUrl: '', loading: false})
         message.error(info.file.response.msg)
@@ -63,7 +63,7 @@ class Login extends React.Component {
                 listType="picture-card"
                 className="avatar-uploader"
                 showUploadList={false}
-                action="https://t-register.aegis-info.com/uploadImg"
+                action="http://localhost:8080/uploadImg"
                 beforeUpload={this.beforeUpload}
                 onChange={this.handleChange}
               >
