@@ -6,7 +6,7 @@ import {connect} from "react-redux";
 import {addUser} from "../../src/reducers/user";
 
 @connect(
-  state => ({user: state.user}),
+  state => ({socketInit: state.socket.socketInit, user: state.user}),
   {addUser}
 )
 class Login extends React.Component {
@@ -35,7 +35,7 @@ class Login extends React.Component {
     if (info.file.status === 'done') {
       if (info.file.response.code === 200) {
         this.setState({loading: false})
-        this.props.addUser({imageUrl: `http://localhost:8080/img/${info.file.response.msg}`})
+        this.props.addUser({imageUrl: `https://localhost:8080/img/${info.file.response.msg}`})
       } else {
         this.setState({loading: false})
         this.props.addUser({imageUrl: ''})
@@ -55,6 +55,7 @@ class Login extends React.Component {
       message.error("请上传头像")
       return;
     }
+    this.props.socketInit()
     this.props.closeLogin()
   }
 
@@ -86,7 +87,7 @@ class Login extends React.Component {
                 listType="picture-card"
                 className="avatar-uploader"
                 showUploadList={false}
-                action="http://localhost:8080/uploadImg"
+                action="https://localhost:8080/uploadImg"
                 beforeUpload={this.beforeUpload}
                 onChange={this.handleChange}
               >

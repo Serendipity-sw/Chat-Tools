@@ -1,16 +1,20 @@
-const socket = (state = null, action) => {
+const socketInit = {
+  socketInit: null,
+  socket: null
+}
+
+const socket = (state = {...socketInit}, action) => {
   switch (action.type) {
     case 'addSocket':
-      return action.object
+      return {...state, ...action.object}
     case 'delSocket':
-      return null
+      return {...socketInit}
     default:
       return state
   }
 }
 
 export default socket
-
 
 export const addSocket = object => {
   return {type: 'addSocket', object}

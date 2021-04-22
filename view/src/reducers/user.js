@@ -1,9 +1,10 @@
 let userInit = {
   userName: '',
-  imageUrl: ''
+  imageUrl: '',
+  id: ''
 }
 
-const user = (state = userInit, action) => {
+const user = (state = {...userInit}, action) => {
   switch (action.type) {
     case 'addUser':
       return {...state, ...action.object}

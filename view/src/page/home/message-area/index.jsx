@@ -1,7 +1,13 @@
 import React from 'react';
 import style from './index.pcss'
 import {PhotoSlider} from "react-photo-view";
+import {connect} from "react-redux";
+import {message} from "antd";
 
+@connect(
+  state => ({selectUser: state.chat.selectUser, socketMessage: state.socketMessage}),
+  {}
+)
 class MessageArea extends React.Component {
   constructor(props) {
     super(props);
@@ -29,44 +35,58 @@ class MessageArea extends React.Component {
     this.setState({imgPreview: event.target.getAttribute('src'), isImgPreview: true})
   }
 
+  messageListProcess = () => {
+    const {selectUser, socketMessage: {userList, messageList}} = this.props
+    return messageList.filter(item => item.send_id === selectUser || item.result_id === selectUser).map(item => {
+      if (item.send_id === selectUser) {
+        return <div className={style.otherSideArea}>
+          <img className={style.otherSideIcon}
+               src={userList[item.send_id].avatar}
+               alt=""/>
+          <div className={style.otherMessageArea}>
+            <label> </label>
+            <span className={style.message}>
+              {
+                item.type === 3 && <img onClick={event => (this.imgPreview(event))}
+                                        src={item.msg}
+                                        alt=""/>
+              }
+              {
+                item.type === 2 && item.msg
+              }
+            </span>
+          </div>
+        </div>
+      } else {
+        return <div className={style.userArea}>
+          <img className={style.userMessageIcon}
+               src={userList[item.send_id].avatar}
+               alt=""/>
+          <div className={style.userMessageArea}>
+            <label> </label>
+            <span className={style.message}>
+              {
+                item.type === 3 && <img onClick={event => (this.imgPreview(event))}
+                                        src={item.msg}
+                                        alt=""/>
+              }
+              {
+                item.type === 2 && item.msg
+              }
+            </span>
+          </div>
+        </div>
+      }
+    })
+  }
+
   render() {
     return (
       <>
         <div className={style.init} ref={this.content}>
-          <div className={style.otherSideArea}>
-            <img className={style.otherSideIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.otherMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img onClick={event => (this.imgPreview(event))}
-                   src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
-          <div className={style.userArea}>
-            <img className={style.userMessageIcon}
-                 src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                 alt=""/>
-            <div className={style.userMessageArea}>
-              <label>2021年4月17日21:06:47</label>
-              <span className={style.message}>
-              <img onClick={event => (this.imgPreview(event))}
-                   src="https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2341995540,1631569862&fm=26&gp=0.jpg"
-                   alt=""/>
-              asdfasfasdfasdfsdf
-            </span>
-            </div>
-          </div>
+          {
+            this.messageListProcess()
+          }
         </div>
         <PhotoSlider
           toolbarRender={({rotate, onRotate}) => {

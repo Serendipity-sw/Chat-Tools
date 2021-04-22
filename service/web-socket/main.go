@@ -100,7 +100,7 @@ func registeredGroupMessage(conn *websocket.Conn, messageObj *util.Message) {
 		itemManager := socketArray[item]
 		modal.Group = append(modal.Group, &itemManager)
 	}
-	sendMessage(modal.Conn, util.ResultMessage{Type: 4, Msg: "注册成功"})
+	sendMessage(modal.Conn, util.ResultMessage{Type: 4, Msg: modal.Id})
 	go sendUserList(&messageObj.UserList)
 }
 
@@ -114,7 +114,7 @@ func registeredUserMessage(conn *websocket.Conn, messageObj *util.Message) {
 	socketArrayLock.Lock()
 	defer socketArrayLock.Unlock()
 	socketArray[modal.Id] = modal
-	sendMessage(modal.Conn, util.ResultMessage{Type: 4, Msg: "注册成功"})
+	sendMessage(modal.Conn, util.ResultMessage{Type: 4, Msg: modal.Id})
 	go sendUserList(nil)
 }
 
