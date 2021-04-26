@@ -7,7 +7,8 @@ import {addSocket} from "../reducers/socket";
 import Login from "../../components/login";
 import {addMessage, addUserList} from "../reducers/socketMessage";
 import {addUser} from "../reducers/user";
-import {webSocketConfig} from "../../util/httpConfig";
+import {aesKey, webSocketConfig} from "../../util/httpConfig";
+import CryptoJS from "crypto-js";
 
 @connect(
   state => ({socket: state.socket, user: state.user}),
@@ -31,9 +32,9 @@ class Router extends React.Component {
     socket.onopen = () => {
       this.props.socket.socket.send(JSON.stringify({
         type: 1,
-        content: '',
+        msg: '',
         img: this.props.user.imageUrl,
-        name: this.props.user.userName,
+        name: CryptoJS.AES.encrypt(this.props.user.userName, aesKey).toString(),
         send_id: '',
         result_id: '',
         user_list: []

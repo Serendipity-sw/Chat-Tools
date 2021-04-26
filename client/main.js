@@ -16,8 +16,8 @@ const createWindow = () => {
             preload: path.join(__dirname, 'js/preload.js')
         }
     });
+    mainWindow.webContents.openDevTools()
     if (process.env.NODE_ENV === 'development') {
-        mainWindow.webContents.openDevTools()
         mainWindow.loadURL('http://localhost:8080/index.html');
         if (process.platform === 'win32') {
             // windows 系统

@@ -11,3 +11,4 @@ logs
 *.pid
 pictureDir
 logs
+*.exe

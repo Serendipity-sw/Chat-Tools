@@ -2,6 +2,8 @@ import React from 'react';
 import style from './index.pcss'
 import {connect} from "react-redux";
 import {addChat} from "../../src/reducers/chat";
+import CryptoJS from "crypto-js";
+import {aesKey} from "../../util/httpConfig";
 
 @connect(
   state => ({selectUser: state.chat.selectUser, userList: state.socketMessage.userList}),
@@ -13,13 +15,18 @@ class UserList extends React.Component {
     this.userListDom = React.createRef()
   }
 
+  decryptMessage = message => {
+    const bytes = CryptoJS.AES.decrypt(message, aesKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  }
+
   userListProcess = () => {
     let domArray = []
     const {selectUser, userList} = this.props
     for (const [key, value] of Object.entries(userList)) {
       domArray.push(
         <li className={selectUser === key && style.select}
-            onClick={() => this.selectUserClick(key)}>{value.name}</li>
+            onClick={() => this.selectUserClick(key)}>{this.decryptMessage(value.name)}</li>
       )
     }
     return domArray
@@ -27,14 +34,6 @@ class UserList extends React.Component {
 
   selectUserClick = selectUser => {
     this.props.addChat({selectUser})
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    this.userListDom.current.scrollTo({
-      top: this.userListDom.current.scrollHeight,
-      left: 0,
-      behavior: 'smooth'
-    })
   }
 
   render() {

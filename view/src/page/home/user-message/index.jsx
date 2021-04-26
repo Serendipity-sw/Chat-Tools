@@ -1,10 +1,13 @@
 import React from 'react'
 import style from './index.pcss'
 import {connect} from "react-redux";
+import {addMessage} from "../../../reducers/socketMessage";
+import CryptoJS from 'crypto-js'
+import {aesKey} from "../../../../util/httpConfig";
 
 @connect(
   state => ({socket: state.socket.socket, user: state.user, selectUser: state.chat.selectUser}),
-  {}
+  {addMessage}
 )
 class UserMessage extends React.Component {
   constructor(props) {
@@ -22,7 +25,7 @@ class UserMessage extends React.Component {
     if (event.keyCode === 13) {
       this.props.socket.send(JSON.stringify({
         type: 3,
-        content: this.state.message,
+        msg: CryptoJS.AES.encrypt(this.state.message, aesKey).toString(),
         img: '',
         name: '',
         send_id: this.props.user.id,

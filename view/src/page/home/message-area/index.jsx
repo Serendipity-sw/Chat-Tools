@@ -2,9 +2,15 @@ import React from 'react';
 import style from './index.pcss'
 import {PhotoSlider} from "react-photo-view";
 import {connect} from "react-redux";
+import CryptoJS from 'crypto-js'
+import {aesKey} from "../../../../util/httpConfig";
 
 @connect(
-  state => ({selectUser: state.chat.selectUser, socketMessage: state.socketMessage}),
+  state => ({
+    selectUser: state.chat.selectUser,
+    socketMessage: state.socketMessage,
+    loginUserAvatar: state.user.imageUrl
+  }),
   {}
 )
 class MessageArea extends React.Component {
@@ -34,13 +40,26 @@ class MessageArea extends React.Component {
     this.setState({imgPreview: event.target.getAttribute('src'), isImgPreview: true})
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.content.current.scrollTo({
+      top: this.content.current.scrollHeight,
+      left: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  decryptMessage = message => {
+    const bytes = CryptoJS.AES.decrypt(message, aesKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  }
+
   messageListProcess = () => {
     const {selectUser, socketMessage: {userList, messageList}} = this.props
     return messageList.filter(item => item.send_id === selectUser || item.result_id === selectUser).map(item => {
       if (item.send_id === selectUser) {
         return <div className={style.otherSideArea}>
           <img className={style.otherSideIcon}
-               src={userList[item.send_id].avatar}
+               src={userList[item.send_id] && userList[item.send_id].avatar}
                alt=""/>
           <div className={style.otherMessageArea}>
             <label> </label>
@@ -51,7 +70,7 @@ class MessageArea extends React.Component {
                                         alt=""/>
               }
               {
-                item.type === 2 && item.msg
+                item.type === 2 && this.decryptMessage(item.msg)
               }
             </span>
           </div>
@@ -59,7 +78,7 @@ class MessageArea extends React.Component {
       } else {
         return <div className={style.userArea}>
           <img className={style.userMessageIcon}
-               src={userList[item.send_id].avatar}
+               src={this.props.loginUserAvatar}
                alt=""/>
           <div className={style.userMessageArea}>
             <label> </label>
@@ -70,7 +89,7 @@ class MessageArea extends React.Component {
                                         alt=""/>
               }
               {
-                item.type === 2 && item.msg
+                item.type === 2 && this.decryptMessage(item.msg)
               }
             </span>
           </div>

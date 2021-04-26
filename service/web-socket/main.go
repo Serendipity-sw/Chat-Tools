@@ -78,12 +78,14 @@ func messageProcess(strBuffer []byte, conn *websocket.Conn) {
 	case 3: // 文本消息
 		socketArrayLock.RLock()
 		defer socketArrayLock.RUnlock()
-		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 2, Msg: messageObj.Content, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		sendMessage(conn, util.ResultMessage{Type: 2, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 2, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
 		break
 	case 4: // 图片消息
 		socketArrayLock.RLock()
 		defer socketArrayLock.RUnlock()
-		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 3, Msg: messageObj.Content, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		sendMessage(conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
 		break
 	}
 }
@@ -100,7 +102,7 @@ func registeredGroupMessage(conn *websocket.Conn, messageObj *util.Message) {
 		itemManager := socketArray[item]
 		modal.Group = append(modal.Group, &itemManager)
 	}
-	sendMessage(modal.Conn, util.ResultMessage{Type: 4, Msg: modal.Id})
+	sendMessage(modal.Conn, util.ResultMessage{Type: 7, Msg: modal.Id})
 	go sendUserList(&messageObj.UserList)
 }
 
@@ -114,7 +116,7 @@ func registeredUserMessage(conn *websocket.Conn, messageObj *util.Message) {
 	socketArrayLock.Lock()
 	defer socketArrayLock.Unlock()
 	socketArray[modal.Id] = modal
-	sendMessage(modal.Conn, util.ResultMessage{Type: 4, Msg: modal.Id})
+	sendMessage(modal.Conn, util.ResultMessage{Type: 1, Msg: modal.Id})
 	go sendUserList(nil)
 }
 
@@ -165,8 +167,10 @@ func sendMessage(conn *websocket.Conn, msg util.ResultMessage) {
 		glog.Error("sendMessage Marshal run err! err: %+v \n", err)
 		return
 	}
-	err = conn.WriteMessage(websocket.TextMessage, resultByte)
-	if err != nil {
-		glog.Error("wsHandler sendMessage err! err: %+v \n", err)
+	if conn != nil {
+		err = conn.WriteMessage(websocket.TextMessage, resultByte)
+		if err != nil {
+			glog.Error("wsHandler sendMessage err! err: %+v \n", err)
+		}
 	}
 }
