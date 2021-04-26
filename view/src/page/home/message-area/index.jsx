@@ -2,7 +2,6 @@ import React from 'react';
 import style from './index.pcss'
 import {PhotoSlider} from "react-photo-view";
 import {connect} from "react-redux";
-import {message} from "antd";
 
 @connect(
   state => ({selectUser: state.chat.selectUser, socketMessage: state.socketMessage}),

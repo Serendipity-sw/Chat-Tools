@@ -7,6 +7,7 @@ import {addSocket} from "../reducers/socket";
 import Login from "../../components/login";
 import {addMessage, addUserList} from "../reducers/socketMessage";
 import {addUser} from "../reducers/user";
+import {webSocketConfig} from "../../util/httpConfig";
 
 @connect(
   state => ({socket: state.socket, user: state.user}),
@@ -25,7 +26,7 @@ class Router extends React.Component {
   }
 
   socketInit = () => {
-    const socket = new WebSocket("ws://localhost:8080/ws")
+    const socket = new WebSocket(webSocketConfig)
     this.props.addSocket({socket})
     socket.onopen = () => {
       this.props.socket.socket.send(JSON.stringify({

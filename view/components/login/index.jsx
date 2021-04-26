@@ -4,6 +4,7 @@ import {LoadingOutlined, PlusOutlined} from '@ant-design/icons';
 import style from './index.pcss'
 import {connect} from "react-redux";
 import {addUser} from "../../src/reducers/user";
+import {httpConfig} from "../../util/httpConfig";
 
 @connect(
   state => ({socketInit: state.socket.socketInit, user: state.user}),
@@ -35,7 +36,7 @@ class Login extends React.Component {
     if (info.file.status === 'done') {
       if (info.file.response.code === 200) {
         this.setState({loading: false})
-        this.props.addUser({imageUrl: `https://localhost:8080/img/${info.file.response.msg}`})
+        this.props.addUser({imageUrl: `${httpConfig}/img/${info.file.response.msg}`})
       } else {
         this.setState({loading: false})
         this.props.addUser({imageUrl: ''})
@@ -87,7 +88,7 @@ class Login extends React.Component {
                 listType="picture-card"
                 className="avatar-uploader"
                 showUploadList={false}
-                action="https://localhost:8080/uploadImg"
+                action={`${httpConfig}/uploadImg`}
                 beforeUpload={this.beforeUpload}
                 onChange={this.handleChange}
               >
