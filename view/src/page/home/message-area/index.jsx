@@ -41,6 +41,10 @@ class MessageArea extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    this.scrollToBottom()
+  }
+
+  scrollToBottom = () => {
     this.content.current.scrollTo({
       top: this.content.current.scrollHeight,
       left: 0,
@@ -67,6 +71,7 @@ class MessageArea extends React.Component {
               {
                 item.type === 3 && <img onClick={event => (this.imgPreview(event))}
                                         src={item.msg}
+                                        onLoad={this.scrollToBottom}
                                         alt=""/>
               }
               {
@@ -86,6 +91,7 @@ class MessageArea extends React.Component {
               {
                 item.type === 3 && <img onClick={event => (this.imgPreview(event))}
                                         src={item.msg}
+                                        onLoad={this.scrollToBottom}
                                         alt=""/>
               }
               {
