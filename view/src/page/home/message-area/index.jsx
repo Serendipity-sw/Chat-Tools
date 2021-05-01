@@ -26,10 +26,14 @@ class MessageArea extends React.Component {
 
   closeImgPreview = () => this.setState({isImgPreview: false})
 
-  fileDownLoad = () => {
+  previewFileDownLoad = () => {
+    this.fileDownLoad(this.state.imgPreview)
+  }
+
+  fileDownLoad = fileUrl => {
     const elt = document.createElement('a');
-    elt.setAttribute('href', this.state.imgPreview);
-    elt.setAttribute('download', 'file.png');
+    elt.setAttribute('href', fileUrl);
+    elt.setAttribute('download', fileUrl.split(/[\\\/]/).pop());
     elt.style.display = 'none';
     document.body.appendChild(elt);
     elt.click();
@@ -66,18 +70,9 @@ class MessageArea extends React.Component {
                src={userList[item.send_id] && userList[item.send_id].avatar}
                alt=""/>
           <div className={style.otherMessageArea}>
-            <label> </label>
-            <span className={style.message}>
-              {
-                item.type === 3 && <img onClick={event => (this.imgPreview(event))}
-                                        src={item.msg}
-                                        onLoad={this.scrollToBottom}
-                                        alt=""/>
-              }
-              {
-                item.type === 2 && this.decryptMessage(item.msg)
-              }
-            </span>
+            {
+              this.messageProcess(item)
+            }
           </div>
         </div>
       } else {
@@ -86,22 +81,37 @@ class MessageArea extends React.Component {
                src={this.props.loginUserAvatar}
                alt=""/>
           <div className={style.userMessageArea}>
-            <label> </label>
-            <span className={style.message}>
-              {
-                item.type === 3 && <img onClick={event => (this.imgPreview(event))}
-                                        src={item.msg}
-                                        onLoad={this.scrollToBottom}
-                                        alt=""/>
-              }
-              {
-                item.type === 2 && this.decryptMessage(item.msg)
-              }
-            </span>
+            {
+              this.messageProcess(item)
+            }
           </div>
         </div>
       }
     })
+  }
+
+  messageProcess = item => {
+    return (
+      <>
+        <label> </label>
+        <span className={style.message}>
+          {
+            item.type === 3 && <img onClick={event => (this.imgPreview(event))}
+                                    src={item.msg}
+                                    onLoad={this.scrollToBottom}
+                                    alt=""/>
+          }
+          {
+            item.type === 2 && this.decryptMessage(item.msg)
+          }
+          {
+            item.type === 9 && <i onClick={() => {
+              this.fileDownLoad(this.decryptMessage(item.msg))
+            }} className={style.fileMessage}>&#xe671;</i>
+          }
+        </span>
+      </>
+    )
   }
 
   render() {
@@ -129,7 +139,7 @@ class MessageArea extends React.Component {
                 </svg>
                 <svg
                   className="PhotoView-PhotoSlider__toolbarIcon"
-                  onClick={this.fileDownLoad}
+                  onClick={this.previewFileDownLoad}
                   width="44"
                   height="44"
                   fill="white"

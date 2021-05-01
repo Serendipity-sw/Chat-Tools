@@ -90,6 +90,9 @@ class Router extends React.Component {
       case 3: // 图片消息
         addMessage(data)
         break
+      case 9: // 文件消息
+        addMessage(data)
+        break
     }
   }
 

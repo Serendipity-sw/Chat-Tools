@@ -51,7 +51,25 @@ class UserMessage extends React.Component {
       if (info.file.response.code === 200) {
         this.props.socket.send(JSON.stringify({
           type: 4,
-          msg: `${httpConfig}/img/${info.file.response.msg}`,
+          msg: `${httpConfig}/file/${info.file.response.msg}`,
+          img: '',
+          name: '',
+          send_id: this.props.user.id,
+          result_id: this.props.selectUser,
+          user_list: []
+        }))
+      } else {
+        message.error(info.file.response.msg)
+      }
+    }
+  }
+
+  fileUploadSuccess = info => {
+    if (info.file.status === 'done') {
+      if (info.file.response.code === 200) {
+        this.props.socket.send(JSON.stringify({
+          type: 9,
+          msg: CryptoJS.AES.encrypt(`${httpConfig}/file/${info.file.response.msg}`, aesKey).toString(),
           img: '',
           name: '',
           send_id: this.props.user.id,
@@ -84,8 +102,7 @@ class UserMessage extends React.Component {
             className={style.marginLeft}
             showUploadList={false}
             action={`${httpConfig}/uploadFile`}
-            beforeUpload={this.beforeUpload}
-            onChange={this.handleChange}
+            onChange={this.fileUploadSuccess}
           >
             <i className={style.expression}>&#xe611;</i>
           </Upload>
