@@ -41,7 +41,7 @@ func uploadImg(c *gin.Context) {
 		return
 	}
 	fileSuffix := path.Ext(file.Filename)
-	err = saveUploadFile(file, fmt.Sprintf("%s/%s.%s", pictureDir, fileName, fileSuffix))
+	err = saveUploadFile(file, fmt.Sprintf("%s/%s%s", pictureDir, fileName, fileSuffix))
 	if err != nil {
 		errStr := fmt.Sprintf("uploadImg saveUploadFile run err! fileName: %s fileSize: %d err: %s ", fileName, file.Size, err.Error())
 		glog.Error("%s \n", errStr)
@@ -50,7 +50,7 @@ func uploadImg(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
-		"msg":  fmt.Sprintf("%s.%s", fileName, fileSuffix),
+		"msg":  fmt.Sprintf("%s%s", fileName, fileSuffix),
 	})
 }
 
