@@ -87,6 +87,9 @@ func messageProcess(strBuffer []byte, conn *websocket.Conn) {
 		sendMessage(conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
 		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
 		break
+	case 8: // 心跳消息
+		sendMessage(conn, util.ResultMessage{Type: 8, Msg: messageObj.Msg})
+		break
 	}
 }
 
