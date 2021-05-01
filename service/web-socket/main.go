@@ -90,6 +90,12 @@ func messageProcess(strBuffer []byte, conn *websocket.Conn) {
 	case 8: // 心跳消息
 		sendMessage(conn, util.ResultMessage{Type: 8, Msg: messageObj.Msg})
 		break
+	case 9: // 文件消息
+		socketArrayLock.RLock()
+		defer socketArrayLock.RUnlock()
+		sendMessage(conn, util.ResultMessage{Type: 9, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 9, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		break
 	}
 }
 
