@@ -3,7 +3,8 @@ import style from './index.pcss'
 import {connect} from "react-redux";
 import {addMessage} from "../../../reducers/socketMessage";
 import CryptoJS from 'crypto-js'
-import {aesKey} from "../../../../util/httpConfig";
+import {aesKey, httpConfig} from "../../../../util/httpConfig";
+import {message, Upload} from "antd";
 
 @connect(
   state => ({socket: state.socket.socket, user: state.user, selectUser: state.chat.selectUser}),
@@ -36,12 +37,46 @@ class UserMessage extends React.Component {
     }
   }
 
+  beforeUpload = file => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('只支持图片格式!');
+    }
+    return isJpgOrPng
+  }
+
+  handleChange = info => {
+    if (info.file.status === 'done') {
+      if (info.file.response.code === 200) {
+        this.props.socket.send(JSON.stringify({
+          type: 4,
+          msg: `${httpConfig}/img/${info.file.response.msg}`,
+          img: '',
+          name: '',
+          send_id: this.props.user.id,
+          result_id: this.props.selectUser,
+          user_list: []
+        }))
+      } else {
+        message.error(info.file.response.msg)
+      }
+    }
+  }
+
   render() {
     return (
       <div className={style.init}>
         <div className={style.toolBox}>
           <i className={style.expression}>&#xe602;</i>
-          <i className={style.expression}>&#xe62b;</i>
+          <Upload
+            className={style.marginLeft}
+            showUploadList={false}
+            action={`${httpConfig}/uploadImg`}
+            beforeUpload={this.beforeUpload}
+            onChange={this.handleChange}
+          >
+            <i className={style.expression}>&#xe62b;</i>
+          </Upload>
         </div>
         <textarea value={this.state.message} onChange={this.messageChange} onKeyDown={this.enterPress}
                   className={style.inputArea}/>
