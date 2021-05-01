@@ -36,7 +36,7 @@ class Login extends React.Component {
     if (info.file.status === 'done') {
       this.setState({loading: false})
       if (info.file.response.code === 200) {
-        this.props.addUser({imageUrl: `${httpConfig}/img/${info.file.response.msg}`})
+        this.props.addUser({imageUrl: `${httpConfig}/file/${info.file.response.msg}`})
       } else {
         this.props.addUser({imageUrl: ''})
         message.error(info.file.response.msg)
@@ -86,7 +86,7 @@ class Login extends React.Component {
                 name="file"
                 listType="picture-card"
                 showUploadList={false}
-                action={`${httpConfig}/uploadImg`}
+                action={`${httpConfig}/uploadFile`}
                 beforeUpload={this.beforeUpload}
                 onChange={this.handleChange}
               >

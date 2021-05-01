@@ -74,11 +74,20 @@ class UserMessage extends React.Component {
           <Upload
             className={style.marginLeft}
             showUploadList={false}
-            action={`${httpConfig}/uploadImg`}
+            action={`${httpConfig}/uploadFile`}
             beforeUpload={this.beforeUpload}
             onChange={this.handleChange}
           >
             <i className={style.expression}>&#xe676;</i>
+          </Upload>
+          <Upload
+            className={style.marginLeft}
+            showUploadList={false}
+            action={`${httpConfig}/uploadFile`}
+            beforeUpload={this.beforeUpload}
+            onChange={this.handleChange}
+          >
+            <i className={style.expression}>&#xe611;</i>
           </Upload>
         </div>
         <textarea value={this.state.message} onChange={this.messageChange} onKeyDown={this.enterPress}
