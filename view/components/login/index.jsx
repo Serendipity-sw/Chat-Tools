@@ -21,7 +21,7 @@ class Login extends React.Component {
   userNameChange = e => this.props.addUser({userName: e.target.value})
 
   beforeUpload = file => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif';
     if (!isJpgOrPng) {
       message.error('只支持图片格式!');
     }
@@ -34,11 +34,10 @@ class Login extends React.Component {
       return;
     }
     if (info.file.status === 'done') {
+      this.setState({loading: false})
       if (info.file.response.code === 200) {
-        this.setState({loading: false})
         this.props.addUser({imageUrl: `${httpConfig}/img/${info.file.response.msg}`})
       } else {
-        this.setState({loading: false})
         this.props.addUser({imageUrl: ''})
         message.error(info.file.response.msg)
       }
@@ -86,7 +85,6 @@ class Login extends React.Component {
               <Upload
                 name="file"
                 listType="picture-card"
-                className="avatar-uploader"
                 showUploadList={false}
                 action={`${httpConfig}/uploadImg`}
                 beforeUpload={this.beforeUpload}

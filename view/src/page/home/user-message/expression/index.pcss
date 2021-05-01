@@ -1,0 +1,62 @@
+.init {
+  size: 300px 200px;
+
+  .fullScreen {
+    size: 100%;
+
+    :global(.ant-tabs-content) {
+      size: 100%;
+    }
+
+    .tableArea {
+      size: 100%;
+      overflow: hidden auto;
+
+      .column {
+        float: left;
+        size: 50px;
+        cursor: pointer;
+
+        :global(.ant-upload-picture-card-wrapper) {
+          size: 100%;
+
+          :global(.ant-upload.ant-upload-select-picture-card) {
+            size: 100%;
+            margin: 0;
+          }
+        }
+
+        :global(.react-contextmenu-wrapper) {
+          size: 100%;
+        }
+
+        .expression {
+          display: block;
+          size: 100%;
+
+          &:hover {
+            border: 2px solid #02d002;
+          }
+        }
+      }
+    }
+  }
+
+  .rightMenuArea {
+    background: white;
+    width: 92px;
+    border: 1px solid #969696;
+
+    .menu {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 2px 0;
+
+      &:hover {
+        background: #cae8ca;
+      }
+    }
+  }
+}

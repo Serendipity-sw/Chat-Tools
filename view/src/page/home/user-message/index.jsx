@@ -4,7 +4,8 @@ import {connect} from "react-redux";
 import {addMessage} from "../../../reducers/socketMessage";
 import CryptoJS from 'crypto-js'
 import {aesKey, httpConfig} from "../../../../util/httpConfig";
-import {message, Upload} from "antd";
+import {message, Popover, Upload} from "antd";
+import Expression from "./expression";
 
 @connect(
   state => ({socket: state.socket.socket, user: state.user, selectUser: state.chat.selectUser}),
@@ -38,7 +39,7 @@ class UserMessage extends React.Component {
   }
 
   beforeUpload = file => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif';
     if (!isJpgOrPng) {
       message.error('只支持图片格式!');
     }
@@ -67,7 +68,9 @@ class UserMessage extends React.Component {
     return (
       <div className={style.init}>
         <div className={style.toolBox}>
-          <i className={style.expression}>&#xe602;</i>
+          <Popover placement="topLeft" content={<Expression/>} trigger="click">
+            <i className={style.expression}>&#xe602;</i>
+          </Popover>
           <Upload
             className={style.marginLeft}
             showUploadList={false}
@@ -75,7 +78,7 @@ class UserMessage extends React.Component {
             beforeUpload={this.beforeUpload}
             onChange={this.handleChange}
           >
-            <i className={style.expression}>&#xe62b;</i>
+            <i className={style.expression}>&#xe676;</i>
           </Upload>
         </div>
         <textarea value={this.state.message} onChange={this.messageChange} onKeyDown={this.enterPress}
