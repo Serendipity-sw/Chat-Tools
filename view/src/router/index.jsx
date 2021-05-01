@@ -20,6 +20,7 @@ class Router extends React.Component {
     this.state = {
       isLoginVisible: true
     }
+    this.heartInterval = 0;
   }
 
   componentDidMount() {
@@ -39,6 +40,7 @@ class Router extends React.Component {
         result_id: '',
         user_list: []
       }))
+      this.heartBeatNotice()
     }
     socket.onmessage = res => {
       let {data} = res
@@ -46,10 +48,31 @@ class Router extends React.Component {
     }
     socket.onerror = res => {
       console.log("失败! ", res)
+      this.closeHearInterval()
     }
     socket.onclose = res => {
       console.log("关闭! ", res)
+      this.closeHearInterval()
     }
+  }
+
+  closeHearInterval = () => {
+    this.heartInterval && clearInterval(this.heartInterval)
+  }
+
+  heartBeatNotice = () => {
+    this.closeHearInterval()
+    this.heartInterval = setInterval(socket => {
+      socket.send(JSON.stringify({
+        type: 8,
+        msg: '心跳',
+        img: '',
+        name: '',
+        send_id: '',
+        result_id: '',
+        user_list: []
+      }))
+    }, 3000, this.props.socket.socket)
   }
 
   socketMessageProcess = data => {
