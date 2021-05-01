@@ -17,25 +17,25 @@ func setGinRouter(r *gin.Engine) {
 	g := &r.RouterGroup
 	{
 		g.GET("/", func(c *gin.Context) { c.String(http.StatusOK, "ok") }) //确认接口服务程序是否健在
-		g.POST("/uploadImg", uploadImg)                                    //图片上传
-		g.GET("/img/:file", getImg)                                        //图片获取
+		g.POST("/uploadFile", uploadFile)                                  //文件上传
+		g.GET("/file/:file", getFile)                                      //文件获取
 		g.GET("/ws", func(c *gin.Context) {
 			websocket.WsHandler(c.Writer, c.Request)
 		})
 	}
 }
 
-func uploadImg(c *gin.Context) {
+func uploadFile(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
-		errStr := fmt.Sprintf("uploadImg formFile nothing! err: %s ", err.Error())
+		errStr := fmt.Sprintf("uploadFile formFile nothing! err: %s ", err.Error())
 		glog.Error("%s \n", errStr)
 		c.String(http.StatusOK, errStr)
 		return
 	}
 	fileName, err := uuid.NewUUID()
 	if err != nil {
-		errStr := fmt.Sprintf("uploadImg NewUUID run err! err: %+v ", err)
+		errStr := fmt.Sprintf("uploadFile NewUUID run err! err: %+v ", err)
 		glog.Error("%s \n", errStr)
 		c.String(http.StatusOK, errStr)
 		return
@@ -43,7 +43,7 @@ func uploadImg(c *gin.Context) {
 	fileSuffix := path.Ext(file.Filename)
 	err = saveUploadFile(file, fmt.Sprintf("%s/%s%s", pictureDir, fileName, fileSuffix))
 	if err != nil {
-		errStr := fmt.Sprintf("uploadImg saveUploadFile run err! fileName: %s fileSize: %d err: %s ", fileName, file.Size, err.Error())
+		errStr := fmt.Sprintf("uploadFile saveUploadFile run err! fileName: %s fileSize: %d err: %s ", fileName, file.Size, err.Error())
 		glog.Error("%s \n", errStr)
 		c.String(http.StatusOK, errStr)
 		return
@@ -54,7 +54,7 @@ func uploadImg(c *gin.Context) {
 	})
 }
 
-func getImg(c *gin.Context) {
+func getFile(c *gin.Context) {
 	fileName := c.Param("file")
 	c.File(fmt.Sprintf("./%s/%s", pictureDir, fileName))
 }
