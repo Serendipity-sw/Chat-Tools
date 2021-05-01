@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 	websocket "wallpaper-collector/service/web-socket"
 )
 
@@ -39,7 +40,8 @@ func uploadImg(c *gin.Context) {
 		c.String(http.StatusOK, errStr)
 		return
 	}
-	err = saveUploadFile(file, fmt.Sprintf("%s/%s.png", pictureDir, fileName))
+	fileSuffix := path.Ext(file.Filename)
+	err = saveUploadFile(file, fmt.Sprintf("%s/%s.%s", pictureDir, fileName, fileSuffix))
 	if err != nil {
 		errStr := fmt.Sprintf("uploadImg saveUploadFile run err! fileName: %s fileSize: %d err: %s ", fileName, file.Size, err.Error())
 		glog.Error("%s \n", errStr)
@@ -48,7 +50,7 @@ func uploadImg(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
-		"msg":  fmt.Sprintf("%s.png", fileName),
+		"msg":  fmt.Sprintf("%s.%s", fileName, fileSuffix),
 	})
 }
 
