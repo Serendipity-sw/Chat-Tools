@@ -4,6 +4,9 @@ import {connect} from "react-redux";
 import {addChat} from "../../src/reducers/chat";
 import CryptoJS from "crypto-js";
 import {aesKey} from "../../util/httpConfig";
+import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import {Modal} from "antd";
+import DiscussionGroup from "./discussion-group";
 
 @connect(
   state => ({selectUser: state.chat.selectUser, userList: state.socketMessage.userList}),
@@ -12,6 +15,10 @@ import {aesKey} from "../../util/httpConfig";
 class UserList extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      selectGroupUser: '',
+      discussionDialogVisible: false
+    }
     this.userListDom = React.createRef()
   }
 
@@ -25,16 +32,33 @@ class UserList extends React.Component {
     const {selectUser, userList} = this.props
     for (const [key, value] of Object.entries(userList)) {
       domArray.push(
-        <li key={value.name} className={selectUser === key ? style.select : ''}
-            onClick={() => this.selectUserClick(key)}>{this.decryptMessage(value.name)}</li>
+        <ContextMenuTrigger key={value.name} id="same_unique_identifier">
+          <li data-user={key} className={selectUser === key ? style.select : ''}
+              onClick={() => this.selectUserClick(key)}>{this.decryptMessage(value.name)}</li>
+        </ContextMenuTrigger>
       )
     }
     return domArray
   }
 
   selectUserClick = selectUser => {
-    this.props.addChat({selectUser})
+    this
+      .props
+      .addChat({selectUser})
   }
+
+  addDiscussionGroup = (e, data) => {
+    switch (data.type) {
+      case 'addDiscussionGroup':
+        this.setState({
+          groupUser: data.target.getAttribute('data-user'),
+          discussionDialogVisible: true
+        })
+        break
+    }
+  }
+
+  closeDiscussionGroupDialog = () => this.setState({discussionDialogVisible: false})
 
   render() {
     return (
@@ -44,6 +68,14 @@ class UserList extends React.Component {
             this.userListProcess()
           }
         </ul>
+        <DiscussionGroup closeDiscussionGroupDialog={this.closeDiscussionGroupDialog}
+                         discussionDialogVisible={this.state.discussionDialogVisible}
+                         selectGroupUser={this.state.selectGroupUser}/>
+        <ContextMenu className={style.rightMenuArea} id="same_unique_identifier">
+          <MenuItem className={style.menu} data={{type: 'addDiscussionGroup'}} onClick={this.addDiscussionGroup}>
+            添加讨论组
+          </MenuItem>
+        </ContextMenu>
       </div>
     );
   }

@@ -1,25 +1,43 @@
 .init {
-    width: var(--userListWidth);
-    height: 100%;
-    border-right: 2px solid #b9b0b0;
-    float: left;
-    overflow: hidden auto;
+  width: var(--userListWidth);
+  height: 100%;
+  border-right: 2px solid #b9b0b0;
+  float: left;
+  overflow: hidden auto;
 
-    ul {
-        margin: 0;
-        size: 100%;
-        padding: 0;
+  ul {
+    margin: 0;
+    size: 100%;
+    padding: 0;
 
-        li {
-            height: 43px;
-            cursor: pointer;
-            @util center;
-            font-size: 17px;
+    li {
+      height: 43px;
+      cursor: pointer;
+      @util center;
+      font-size: 17px;
 
-            &.select {
-                background: #b9b0b0;
-                color: white;
-            }
-        }
+      &.select {
+        background: #b9b0b0;
+        color: white;
+      }
     }
+  }
+
+  .rightMenuArea {
+    background: white;
+    width: 92px;
+    border: 1px solid #969696;
+
+    .menu {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 2px 0;
+
+      &:hover {
+        background: #cae8ca;
+      }
+    }
+  }
 }
