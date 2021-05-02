@@ -63,9 +63,9 @@ class MessageArea extends React.Component {
 
   messageListProcess = () => {
     const {selectUser, socketMessage: {userList, messageList}} = this.props
-    return messageList.filter(item => item.send_id === selectUser || item.result_id === selectUser).map(item => {
+    return messageList.filter(item => item.send_id === selectUser || item.result_id === selectUser).map((item, index) => {
       if (item.send_id === selectUser) {
-        return <div className={style.otherSideArea}>
+        return <div key={index} className={style.otherSideArea}>
           <img className={style.otherSideIcon}
                src={userList[item.send_id] && userList[item.send_id].avatar}
                alt=""/>
@@ -76,7 +76,7 @@ class MessageArea extends React.Component {
           </div>
         </div>
       } else {
-        return <div className={style.userArea}>
+        return <div key={index} className={style.userArea}>
           <img className={style.userMessageIcon}
                src={this.props.loginUserAvatar}
                alt=""/>
