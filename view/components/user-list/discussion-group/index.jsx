@@ -23,7 +23,9 @@ class DiscussionGroup extends React.Component {
   checkboxOptionProcess = () => {
     let userList = []
     for (const [key, value] of Object.entries(this.props.userList)) {
-      userList.push({label: decryptMessage(value.name), value: key})
+      if (value.number === 1) {
+        userList.push({label: decryptMessage(value.name), value: key})
+      }
     }
     return userList
   }
