@@ -3,6 +3,7 @@ package web_socket
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/swgloomy/gutil/glog"
 	"net/http"
@@ -57,7 +58,7 @@ func delSocket(pointer string) {
 	}
 	delete(socketArray, pointer)
 	socketArrayLock.Unlock()
-	go sendUserList(nil)
+	go sendUserList()
 }
 
 func messageProcess(strBuffer []byte, conn *websocket.Conn) {
@@ -73,19 +74,37 @@ func messageProcess(strBuffer []byte, conn *websocket.Conn) {
 		go registeredUserMessage(conn, &messageObj)
 		break
 	case 2: // 注册群组
-		go registeredGroupMessage(conn, &messageObj)
+		go registeredGroupMessage(&messageObj)
 		break
 	case 3: // 文本消息
 		socketArrayLock.RLock()
 		defer socketArrayLock.RUnlock()
 		sendMessage(conn, util.ResultMessage{Type: 2, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
-		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 2, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		if socketArray[messageObj.ResultId].GroupCount != 1 {
+			for _, item := range socketArray[messageObj.ResultId].Group {
+				if item.Id == messageObj.SendId {
+					continue
+				}
+				go sendMessage(item.Conn, util.ResultMessage{Type: 2, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+			}
+		} else {
+			sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 2, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		}
 		break
 	case 4: // 图片消息
 		socketArrayLock.RLock()
 		defer socketArrayLock.RUnlock()
 		sendMessage(conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
-		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		if socketArray[messageObj.ResultId].GroupCount != 1 {
+			for _, item := range socketArray[messageObj.ResultId].Group {
+				if item.Id == messageObj.SendId {
+					continue
+				}
+				go sendMessage(item.Conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+			}
+		} else {
+			sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 3, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		}
 		break
 	case 8: // 心跳消息
 		sendMessage(conn, util.ResultMessage{Type: 8, Msg: messageObj.Msg})
@@ -94,14 +113,28 @@ func messageProcess(strBuffer []byte, conn *websocket.Conn) {
 		socketArrayLock.RLock()
 		defer socketArrayLock.RUnlock()
 		sendMessage(conn, util.ResultMessage{Type: 9, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
-		sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 9, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		if socketArray[messageObj.ResultId].GroupCount != 1 {
+			for _, item := range socketArray[messageObj.ResultId].Group {
+				if item.Id == messageObj.SendId {
+					continue
+				}
+				go sendMessage(item.Conn, util.ResultMessage{Type: 9, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+			}
+		} else {
+			sendMessage(socketArray[messageObj.ResultId].Conn, util.ResultMessage{Type: 9, Msg: messageObj.Msg, SendId: messageObj.SendId, ResultId: messageObj.ResultId})
+		}
 		break
 	}
 }
 
-func registeredGroupMessage(conn *websocket.Conn, messageObj *util.Message) {
+func registeredGroupMessage(messageObj *util.Message) {
+	id, err := uuid.NewUUID()
+	if err != nil {
+		glog.Error("registeredGroupMessage NewUUID err! err: %s \n", err.Error())
+		return
+	}
 	var modal util.Manager
-	modal.Id = fmt.Sprintf("%p", conn)
+	modal.Id = id.String()
 	modal.Name = messageObj.Name
 	modal.Avatar = messageObj.Img
 	modal.GroupCount = len(messageObj.UserList)
@@ -111,8 +144,8 @@ func registeredGroupMessage(conn *websocket.Conn, messageObj *util.Message) {
 		itemManager := socketArray[item]
 		modal.Group = append(modal.Group, &itemManager)
 	}
-	sendMessage(modal.Conn, util.ResultMessage{Type: 7, Msg: modal.Id})
-	go sendUserList(&messageObj.UserList)
+	socketArray[modal.Id] = modal
+	go sendUserList()
 }
 
 func registeredUserMessage(conn *websocket.Conn, messageObj *util.Message) {
@@ -126,25 +159,14 @@ func registeredUserMessage(conn *websocket.Conn, messageObj *util.Message) {
 	defer socketArrayLock.Unlock()
 	socketArray[modal.Id] = modal
 	sendMessage(modal.Conn, util.ResultMessage{Type: 1, Msg: modal.Id})
-	go sendUserList(nil)
+	go sendUserList()
 }
 
-func sendUserList(userList *[]string) {
+func sendUserList() {
 	socketArrayLock.RLock()
 	defer socketArrayLock.RUnlock()
 	var bo bool
 	for _, item := range socketArray {
-		if userList != nil {
-			for _, modal := range *userList {
-				bo = modal == item.Id
-				if bo {
-					break
-				}
-			}
-			if !bo {
-				continue
-			}
-		}
 		var result = util.ResultMessage{
 			Type:     6,
 			UserList: make(map[string]util.UserManager),
