@@ -35,6 +35,7 @@ class UserMessage extends React.Component {
         user_list: []
       }))
       this.setState({message: ''})
+      event.preventDefault()
     }
   }
 

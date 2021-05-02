@@ -25,7 +25,7 @@ class UserList extends React.Component {
     const {selectUser, userList} = this.props
     for (const [key, value] of Object.entries(userList)) {
       domArray.push(
-        <li className={selectUser === key && style.select}
+        <li key={value.name} className={selectUser === key ? style.select : ''}
             onClick={() => this.selectUserClick(key)}>{this.decryptMessage(value.name)}</li>
       )
     }
