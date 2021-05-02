@@ -2,8 +2,7 @@ import React from 'react';
 import style from './index.pcss'
 import {PhotoSlider} from "react-photo-view";
 import {connect} from "react-redux";
-import CryptoJS from 'crypto-js'
-import {aesKey} from "../../../../util/httpConfig";
+import {decryptMessage} from '../../../../util/aes'
 
 @connect(
   state => ({
@@ -56,11 +55,6 @@ class MessageArea extends React.Component {
     })
   }
 
-  decryptMessage = message => {
-    const bytes = CryptoJS.AES.decrypt(message, aesKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  }
-
   messageListProcess = () => {
     const {selectUser, socketMessage: {userList, messageList}} = this.props
     return messageList.filter(item => item.send_id === selectUser || item.result_id === selectUser).map((item, index) => {
@@ -102,11 +96,11 @@ class MessageArea extends React.Component {
                                     alt=""/>
           }
           {
-            item.type === 2 && this.decryptMessage(item.msg)
+            item.type === 2 && decryptMessage(item.msg)
           }
           {
             item.type === 9 && <i onClick={() => {
-              this.fileDownLoad(this.decryptMessage(item.msg))
+              this.fileDownLoad(decryptMessage(item.msg))
             }} className={style.fileMessage}>&#xe671;</i>
           }
         </span>
