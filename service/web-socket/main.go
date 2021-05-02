@@ -186,7 +186,7 @@ func sendUserList() {
 					continue
 				}
 			}
-			result.UserList[manager.Id] = util.UserManager{Id: manager.Id, Avatar: manager.Avatar, Name: manager.Name}
+			result.UserList[manager.Id] = util.UserManager{Id: manager.Id, Avatar: manager.Avatar, Name: manager.Name, Number: manager.GroupCount}
 		}
 		sendMessage(item.Conn, result)
 	}

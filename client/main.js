@@ -17,6 +17,7 @@ const createWindow = () => {
     }
   });
   if (process.env.NODE_ENV === 'development') {
+    mainWindow.openDevTools(); // 打开开发者工具
     mainWindow.loadURL('http://localhost:8080/index.html');
     // if (process.platform === 'win32') {
     //   // windows 系统

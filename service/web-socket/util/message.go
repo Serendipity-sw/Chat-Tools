@@ -22,4 +22,5 @@ type UserManager struct {
 	Id     string `json:"id"`
 	Avatar string `json:"avatar"`
 	Name   string `json:"name"`
+	Number int    `json:"number"`
 }
