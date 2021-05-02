@@ -4,10 +4,12 @@
   border-right: 2px solid #b9b0b0;
   float: left;
   overflow: hidden auto;
+  position: relative;
+  --addGroupHeight: 22px;
 
   ul {
     margin: 0;
-    size: 100%;
+    size: 100% calc(100% - var(--addGroupHeight));
     padding: 0;
 
     li {
@@ -23,21 +25,25 @@
     }
   }
 
-  .rightMenuArea {
-    background: white;
-    width: 92px;
-    border: 1px solid #969696;
+  .addGroup {
+    position: absolute;
+    bottom: 0;
+    width: 62px;
+    height: var(--addGroupHeight);
+    left: calc(50% - @width / 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #fff;
+    border-radius: 40px;
+    cursor: pointer;
 
-    .menu {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      padding: 2px 0;
-
-      &:hover {
-        background: #cae8ca;
-      }
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      color: #fff;
     }
   }
 }

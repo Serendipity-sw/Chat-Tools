@@ -8,6 +8,7 @@ import {decryptMessage} from '../../../../util/aes'
   state => ({
     selectUser: state.chat.selectUser,
     socketMessage: state.socketMessage,
+    user: state.user,
     loginUserAvatar: state.user.imageUrl
   }),
   {}
@@ -58,7 +59,7 @@ class MessageArea extends React.Component {
   messageListProcess = () => {
     const {selectUser, socketMessage: {userList, messageList}} = this.props
     return messageList.filter(item => item.send_id === selectUser || item.result_id === selectUser).map((item, index) => {
-      if (item.send_id === selectUser) {
+      if (item.send_id !== this.props.user.id) {
         return <div key={index} className={style.otherSideArea}>
           <img className={style.otherSideIcon}
                src={userList[item.send_id] && userList[item.send_id].avatar}
