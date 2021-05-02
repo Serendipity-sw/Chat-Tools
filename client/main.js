@@ -19,20 +19,20 @@ const createWindow = () => {
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools()
     mainWindow.loadURL('http://localhost:8080/index.html');
-    if (process.platform === 'win32') {
-      // windows 系统
-      exec(path.join(__dirname, '../service/service.exe'))
-    } else {
-      exec(path.join(__dirname, '../service/service'))
-    }
+    // if (process.platform === 'win32') {
+    //   // windows 系统
+    //   exec(path.join(__dirname, '../service/service.exe'))
+    // } else {
+    //   exec(path.join(__dirname, '../service/service'))
+    // }
   } else {
     mainWindow.loadFile(process.resourcesPath + '/index.html');
-    if (process.platform === 'win32') {
-      // windows 系统
-      exec(process.resourcesPath + '/service.exe')
-    } else {
-      exec(process.resourcesPath + '/service')
-    }
+    // if (process.platform === 'win32') {
+    //   // windows 系统
+    //   exec(process.resourcesPath + '/service.exe')
+    // } else {
+    //   exec(process.resourcesPath + '/service')
+    // }
   }
   // 注册快捷键
   globalShortcut.register('f12', () => {
