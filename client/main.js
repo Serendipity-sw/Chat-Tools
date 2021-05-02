@@ -34,7 +34,7 @@ const createWindow = () => {
     // }
   }
   // 注册快捷键
-  globalShortcut.register('f12', () => {
+  globalShortcut.register('f10', () => {
     mainWindow.openDevTools(); // 打开开发者工具
   });
 
