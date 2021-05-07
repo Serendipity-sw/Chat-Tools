@@ -46,7 +46,7 @@
     "css-minimizer-webpack-plugin": "^1.2.0",
     "cssnano-preset-advanced": "^4.0.7",
     "electron": "^12.0.2",
-    "electron-builder": "^22.10.5",
+    "electron-builder": "22.10.4",
     "file-loader": "^6.2.0",
     "gulp": "^4.0.2",
     "gulp-zip": "^5.1.0",
