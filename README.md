@@ -1,5 +1,7 @@
 # 聊天工具
 
+只是不想收到监管的聊天工具
+
 ## 技术点
 
     react+redux+webpack5+postcss+electron+golang
