@@ -85,12 +85,15 @@ class Router extends React.Component {
         addUserList(data.user_list)
         break
       case 2: // 文本消息
+        globalThis.api.send('notification')
         addMessage(data)
         break
       case 3: // 图片消息
+        globalThis.api.send('notification')
         addMessage(data)
         break
       case 9: // 文件消息
+        globalThis.api.send('notification')
         addMessage(data)
         break
     }

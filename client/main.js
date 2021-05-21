@@ -1,4 +1,4 @@
-const {app, BrowserWindow, globalShortcut, Menu, ipcMain} = require('electron');
+const {app, BrowserWindow, globalShortcut, Menu, ipcMain, Notification} = require('electron');
 const wallpaper = require('wallpaper')
 const exec = require('child_process').execFile
 const path = require('path');
@@ -44,4 +44,10 @@ Menu.setApplicationMenu(null);
 app.whenReady().then(createWindow);
 app.on('window-all-closed', () => {
   app.exit(0);
+})
+
+ipcMain.on('notification', (e, message) => {
+  new Notification('新消息', {
+    body: '来自electron'
+  })
 })
