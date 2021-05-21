@@ -5,20 +5,25 @@ import {httpConfig} from "../../../../../util/httpConfig";
 import {ExclamationCircleOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import {connect} from "react-redux";
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import {expressionChange} from "../../../../reducers/expression";
 
 const {TabPane} = Tabs
 const {confirm} = Modal;
 
 @connect(
-  state => ({socket: state.socket.socket, user: state.user, selectUser: state.chat.selectUser}),
-  {}
+  state => ({
+    socket: state.socket.socket,
+    user: state.user,
+    selectUser: state.chat.selectUser,
+    expression: state.expression
+  }),
+  {expressionChange}
 )
 class Expression extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
-      expression: []
+      loading: false
     }
   }
 
@@ -38,8 +43,8 @@ class Expression extends React.Component {
     if (info.file.status === 'done') {
       this.setState({loading: false})
       if (info.file.response.code === 200) {
-        const {expression} = this.state
-        this.setState({expression: [...expression, `${httpConfig}/file/${info.file.response.msg}`]})
+        const {expression} = this.props
+        this.props.expressionChange([...expression, `${httpConfig}/file/${info.file.response.msg}`])
       } else {
         message.error(info.file.response.msg)
       }
@@ -57,9 +62,9 @@ class Expression extends React.Component {
           okType: 'danger',
           cancelText: '你猜?',
           onOk: () => {
-            let expression = this.state.expression
+            let expression = this.props.expression
             expression.splice(data.target.getAttribute('data-index'), 1)
-            this.setState({expression})
+            this.props.expressionChange([...expression])
           },
           onCancel() {
             message.warn("已取消")
@@ -88,9 +93,9 @@ class Expression extends React.Component {
           <TabPane tab="表情" key="1" className={style.fullScreen}>
             <div className={style.tableArea}>
               {
-                this.state.expression.map((item, index) =>
+                this.props.expression.map((item, index) =>
                   <div key={item} className={style.column}>
-                    <ContextMenuTrigger id="same_unique_identifier">
+                    <ContextMenuTrigger id="same_unique_identifiers">
                       <img data-index={index} className={style.expression} onClick={() => {
                         this.sendExpression(item)
                       }} src={item} alt=""/>
@@ -115,7 +120,7 @@ class Expression extends React.Component {
             </div>
           </TabPane>
         </Tabs>
-        <ContextMenu className={style.rightMenuArea} id="same_unique_identifier">
+        <ContextMenu className={style.rightMenuArea} id="same_unique_identifiers">
           <MenuItem className={style.menu} data={{type: 'delExpression'}} onClick={this.rightMenuClick}>
             删除
           </MenuItem>

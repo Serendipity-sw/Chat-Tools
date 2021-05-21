@@ -3,15 +3,21 @@ import style from './index.pcss'
 import {PhotoSlider} from "react-photo-view";
 import {connect} from "react-redux";
 import {decryptMessage} from '../../../../util/aes'
+import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import {message} from "antd";
+import {expressionChange} from "../../../reducers/expression";
+import {httpConfig} from "../../../../util/httpConfig";
 
 @connect(
   state => ({
     selectUser: state.chat.selectUser,
     socketMessage: state.socketMessage,
     user: state.user,
-    loginUserAvatar: state.user.imageUrl
+    loginUserAvatar: state.user.imageUrl,
+    addExpressionFunc: state.expression,
+    expression: state.expression
   }),
-  {}
+  {expressionChange}
 )
 class MessageArea extends React.Component {
   constructor(props) {
@@ -91,10 +97,13 @@ class MessageArea extends React.Component {
         <label> </label>
         <span className={style.message}>
           {
-            item.type === 3 && <img onClick={event => (this.imgPreview(event))}
-                                    src={item.msg}
-                                    onLoad={this.scrollToBottom}
-                                    alt=""/>
+            item.type === 3 &&
+            <ContextMenuTrigger id="same_unique_identifier">
+              <img onClick={event => (this.imgPreview(event))}
+                   src={item.msg}
+                   onLoad={this.scrollToBottom}
+                   alt=""/>
+            </ContextMenuTrigger>
           }
           {
             item.type === 2 && decryptMessage(item.msg)
@@ -107,6 +116,16 @@ class MessageArea extends React.Component {
         </span>
       </>
     )
+  }
+
+  rightMenuClick = (e, data) => {
+    switch (data.type) {
+      case 'addExpression':
+        const {expression} = this.props
+        this.props.expressionChange([...expression, data.target.getAttribute('src')])
+        message.success("表情添加成功")
+        break
+    }
   }
 
   render() {
@@ -150,6 +169,11 @@ class MessageArea extends React.Component {
           visible={this.state.isImgPreview}
           onClose={this.closeImgPreview}
         />
+        <ContextMenu className={style.rightMenuArea} id="same_unique_identifier">
+          <MenuItem className={style.menu} data={{type: 'addExpression'}} onClick={this.rightMenuClick}>
+            添加到表情
+          </MenuItem>
+        </ContextMenu>
       </>
     )
   }
