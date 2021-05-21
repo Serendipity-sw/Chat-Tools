@@ -62,7 +62,7 @@ class Expression extends React.Component {
             this.setState({expression})
           },
           onCancel() {
-            console.log('Cancel');
+            message.warn("已取消")
           },
         });
         break
