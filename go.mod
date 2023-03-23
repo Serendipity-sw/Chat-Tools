@@ -11,6 +11,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/swgloomy/gutil v0.0.0-20210326134621-ff247f6b994e
 	github.com/swgloomy/gutil/glog v0.0.0-20210326134621-ff247f6b994e
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 )
