@@ -3,7 +3,7 @@ module wallpaper-collector
 go 1.16
 
 require (
-	github.com/gin-gonic/gin v1.7.1
+	github.com/gin-gonic/gin v1.7.7
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/guotie/deferinit v0.0.0-20160907060517-7ecd28352af0
